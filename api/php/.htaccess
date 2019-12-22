@@ -1,0 +1,6 @@
+Options +FollowSymLinks
+RewriteEngine On
+RewriteBase /
+
+RewriteCond %{REQUEST_URI} !^/sbapi/api.php$
+RewriteRule ^(.+)$  /sbapi/api.php?id=$1 [L,NC,QSA]

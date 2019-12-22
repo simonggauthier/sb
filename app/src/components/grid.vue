@@ -2,15 +2,15 @@
 	<div class="grid">
 		<table class="grid-table">
 			<tbody>
-				<tr v-for="y in height">
-					<td v-for="x in width">
+				<tr v-for="y in height" :class="'row-' + y">
+					<td v-for="x in width" :class="'col-' + x + ' ' + (cellMode(x, y) === 'edit' ? 'edit' : '')">
 						<div class="grid-cell" v-on:click="onCellClick(x, y)">
-							<div v-if="cellMode(x, y) === 'view'">
+							<div class="cell-render" v-if="cellMode(x, y) === 'view'">
 								{{ renderCellText(x, y) }}
 							</div>
 
-							<div v-if="cellMode(x, y) === 'edit'">
-								<input type="text" :value="renderCellText(x, y)" />
+							<div class="input-render" v-if="cellMode(x, y) === 'edit'">
+								<grid-input v-on:blur="onCellBlur(x, y)" v-model="editedCellValue" ref="editedCellInput" />
 							</div>
 						</div>
 					</td>
@@ -21,6 +21,8 @@
 </template>
 
 <script>
+import GridInput from './grid-input.vue';
+
 class Cell {
 	constructor (x, y, value) {
 		this.x = x;
@@ -51,6 +53,12 @@ class Model {
 	getCell (x, y) {
 		return this.cells.find((cell) => { return cell.is(x, y) });
 	}
+
+	setCells (cells) {
+		for (var i = 0; i < cells.length; i++) {
+			this.cells.push(new Cell(cells[i].x, cells[i].y, cells[i].value));
+		}
+	}
 };
 
 export default {
@@ -59,7 +67,8 @@ export default {
 			width: 12,
 			height: 10,
 			model: new Model(),
-			editedCell: null
+			editedCell: null,
+			editedCellValue: ''
 		}
 	},
 
@@ -83,13 +92,29 @@ export default {
 		},
 
 		onCellClick: function (x, y) {
+			this.editedCellValue = this.renderCellText(x, y);
 			this.editedCell = x + ':' + y;
+		},
+
+		onCellBlur: function (x, y) {
+			if (this.editedCellValue.length != 0) {
+				this.model.setCell(x, y, this.editedCellValue);
+				this.$emit('modelChange', this.model);
+			}
+
+			this.editedCell = null;
+			this.editedCellValue = '';
 		}
+	},
+
+	components: {
+		GridInput
 	}
 }
 </script>
 
 <style>
+
 .grid-table {
 	border-collapse: collapse;
 }
@@ -97,12 +122,33 @@ export default {
 .grid-table td {
 	border: 1px solid #ccc;
 	width: 60px;
+	max-width: 60px;
 	height: 30px;
+	overflow: hidden;
+	padding: 2px;
+}
+
+.grid-table td.edit {
+	background-color: #efe;
 }
 
 .grid-cell {
 	width: 100%;
 	height: 100%;
+	position: relative;
+}
+
+.grid-cell > div {
+	width: 100%;
+
+	position: absolute;
+	top: 50%;
+	-ms-transform: translateY(-50%);
+	transform: translateY(-50%);
+}
+
+.cell-render {
+	text-align: right;
 }
 
 </style>
