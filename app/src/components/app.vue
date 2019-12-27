@@ -1,64 +1,31 @@
 <template>
-	<div class="app">
-		<div class="status-bar">
-			{{status}}
-		</div>
-
-		<div class="content">
-			<grid ref="grid" v-on:modelChange="onModelChange"></grid>
-		</div>
+	<div class="content">
+		<login v-if="!isLoggedIn" v-on:loggedIn="onLoggedIn"></login>
 	</div>
 </template>
 
 <script>
-import Grid from './grid.vue';
-import Objects from '../api/objects.js';
+import Login from './login.vue';
 
 export default {
 	data () {
 		return {
-			status: ''
+			isLoggedIn: false
 		}
 	},
 
 	mounted: function () {
-		this.status = 'Logging in...';
 
-		Objects.login().then(() => {
-			this.status = '';
-
-			this.load();
-		});
 	},
 
 	methods: {
-		load () {
-			this.status = 'Loading...';
-
-			Objects.get('grid').then((data) => {
-				this.$refs.grid.model.setCells(data.cells);
-
-				
-			}).finally(() => {
-				this.status = '';
-			});
-		},
-
-		save () {
-			this.status = 'Saving...';
-
-			Objects.set('grid', JSON.stringify(this.$refs.grid.model)).then((data) => {
-				this.status = '';
-			});
-		},
-
-		onModelChange (model) {
-			this.save();
+		onLoggedIn () {
+			this.isLoggedIn = true;
 		}
 	},
 
 	components: {
-		Grid
+		Login
 	}
 }
 </script>
@@ -70,23 +37,8 @@ export default {
 	padding: 0;
 }
 
-.app {
-	font-family: 'Segoe UI';
-	font-size: 16px;
-}
-
-.status-bar {
-	height: 30px;
-	padding: 5px;
-}
-
-button {
-	padding: 5px 10px 5px 10px;
-}
-
-.grid, .grid input {
-	font-family: 'consolas';
-	font-size: 16px;
+body {
+	background-color: #222;
 }
 
 </style>

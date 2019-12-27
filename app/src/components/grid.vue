@@ -10,7 +10,7 @@
 							</div>
 
 							<div class="input-render" v-if="cellMode(x, y) === 'edit'">
-								<grid-input v-on:blur="onCellBlur(x, y)" v-model="editedCellValue" ref="editedCellInput" />
+								<grid-input v-on:blur="onCellBlur(x, y)" v-on:left="moveEditedCell({x: -1, y: 0})" v-model="editedCellValue" ref="editedCellInput" />
 							</div>
 						</div>
 					</td>
@@ -102,8 +102,45 @@ export default {
 				this.$emit('modelChange', this.model);
 			}
 
-			this.editedCell = null;
-			this.editedCellValue = '';
+			if (this.editedCell === x + ':' + y) {
+				this.editedCell = null;
+				this.editedCellValue = '';
+			}
+		},
+
+		getEditedCellCoords: function () {
+			if (!this.editedCell) {
+				return null;
+			}
+
+			var c = this.editedCell.split(':');
+
+			return {
+				x: parseInt(c[0], 10),
+				y: parseInt(c[1], 10)
+			};
+		},
+
+		setEditedCell: function (x, y) {
+			this.editedCell = x + ':' + y;
+			this.editedCellValue = this.renderCellText(x, y);
+		},
+
+		moveEditedCell: function (dir) {
+			console.log('moveEditedCell');
+
+			var coords = this.getEditedCellCoords();
+
+			if (!coords) {
+				return;
+			}
+
+			coords.x += Math.min(dir.x, 0);
+			coords.y += Math.min(dir.y, 0);
+
+			this.editedCell = coords.x + ':' + coords.y;
+
+			console.log(this.editedCell);
 		}
 	},
 

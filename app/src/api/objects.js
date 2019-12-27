@@ -5,7 +5,7 @@ var baseUrl = '/sbapi/';
 var Objects = {
 	login: (username, password) => {
 		var ret = new Promise((resolve, reject) => {
-			$.post(baseUrl + 'login', {username: 'simon', password: 'hello'}, (data) => {
+			$.post(baseUrl + 'login', {username: username, password: password}, (data) => {
 				resolve(data);
 			}).fail((e) => {
 				reject(JSON.parse(e.responseText));

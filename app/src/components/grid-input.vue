@@ -1,6 +1,6 @@
 <template>
 	<div class="grid-input">
-		<input ref="input" type="text" :value="value" v-on:input="onInput" v-on:blur="onBlur" v-on:keyup.enter="onEnter" />
+		<input ref="input" type="text" :value="value" v-on:input="onInput" v-on:blur="onBlur" v-on:keydown="onKeydown" />
 	</div>
 </template>
 
@@ -17,8 +17,24 @@ export default {
 			this.$emit('blur', e.target.value);
 		},
 
-		onEnter (e) {
-			this.$refs.input.blur();
+		onKeydown (e) {
+			switch(e.keyCode)
+			{
+				// Enter
+				case 13:
+					this.$refs.input.blur();
+					break;
+				// Left
+				case 37:
+					this.$emit('left');
+					this.$refs.input.blur();
+					break;
+				// Right
+				case 37:
+					this.$emit('right');
+					this.$refs.input.blur();
+					break;
+			}
 		}
 	},
 
