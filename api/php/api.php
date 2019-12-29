@@ -22,16 +22,20 @@
 
 	function login ($id, $password)
 	{
-		if (isLoginOk($id, hash('sha256', $password)))
-		{
-			$_SESSION['userId'] = $id;
-
-			http_response_code(200);
-		}
-		else
+		if (!isLoginOk($id, hash('sha256', $password)))
 		{
 			http_response_code(401);
+
+			echo error(5, "invalid credentials");
+
+			return;
 		}
+
+		$_SESSION['userId'] = $id;
+
+		http_response_code(200);
+
+		echo ok($id);
 	}
 
 	function get ($id) 

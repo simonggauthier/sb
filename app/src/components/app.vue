@@ -1,11 +1,16 @@
 <template>
 	<div class="content">
 		<login v-if="!isLoggedIn" v-on:loggedIn="onLoggedIn"></login>
+
+		<panels v-if="isLoggedIn"></panels>
 	</div>
 </template>
 
 <script>
+import Vue from 'vue';
+
 import Login from './login.vue';
+import Panels from './panels.vue';
 
 export default {
 	data () {
@@ -25,20 +30,12 @@ export default {
 	},
 
 	components: {
-		Login
+		Login,
+		Panels
 	}
 }
 </script>
 
 <style>
-
-* {
-	margin: 0;
-	padding: 0;
-}
-
-body {
-	background-color: #222;
-}
 
 </style>
