@@ -1,5 +1,5 @@
 <template>
-	<div class="login center-page">
+	<div class="login center-page" v-if="triedToken">
 		<div class="logo">
 			<h1>SB</h1>
 			<img class="center-h" src="img/logo_transparent.png" alt="" />
@@ -11,10 +11,8 @@
 			</div>
 
 			<div class="fields">
-				<form autocomplete="off">
 				<input type="text" class="center-h" placeholder="Username" v-model="username" autocomplete="off" />
-				<input type="password" class="center-h" placeholder="Password" v-model="password" autocomplete="new-password" />
-				</form>
+				<input type="password" class="center-h" placeholder="Password" v-model="password" autocomplete="new-password" v-on:keyup.enter="doLogin" />
 			</div>
 
 			<button type="button" class="center-h" v-on:click="doLogin">Login</button>
@@ -28,6 +26,7 @@ import Objects from '../api/objects.js';
 export default {
 	data () {
 		return {
+			triedToken: false,
 			username: '',
 			password: '',
 			error: ''
@@ -35,16 +34,23 @@ export default {
 	},
 
 	mounted: function () {
+		var t = this;
 
+		this.$nextTick(() => {
+			Objects.loginByToken().then(() => {
+				console.log('loggedInByToken');
+				t.$emit('loggedIn');
+			}).catch((e) => {
+				t.triedToken = true;
+			});
+		});
 	},
 
 	methods: {
 		doLogin () {
 			var t = this;
 
-			Objects.login(this.username, this.password).then((data) => {
-				console.log(data);
-
+			Objects.login(this.username, this.password).then(() => {
 				t.$emit('loggedIn');
 			}).catch((e) => {
 				t.error = 'Wrong login';
@@ -77,26 +83,16 @@ export default {
 
 h1 {
 	text-align: center;
-	color: #fff;
+	font-size: 3em;
 }
 
 input {
-	border: 0;
-	padding: 6px;
 	width: 80%;
 	margin-bottom: 40px;
-	font-size: 20px;
-	background-color: #ddf;
 }
 
 button {
-	border: 0;
-	padding: 6px;
 	width: 80%;
-	font-size: 20px;
-	font-weight: bold;
-	background-color: #113;
-	color: #fff;
 }
 
 .error {

@@ -9,6 +9,10 @@
 <script>
 import Vue from 'vue';
 
+import Book from '../api/model/book.js';
+
+import Objects from '../api/objects.js';
+
 import Login from './login.vue';
 import Panels from './panels.vue';
 
@@ -20,12 +24,16 @@ export default {
 	},
 
 	mounted: function () {
-
+		this.loadBook();
 	},
 
 	methods: {
 		onLoggedIn () {
 			this.isLoggedIn = true;
+		},
+
+		loadBook () {
+
 		}
 	},
 

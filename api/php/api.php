@@ -20,7 +20,7 @@
 		return (json_last_error() == JSON_ERROR_NONE);
 	}
 
-	function login ($id, $password)
+	function login ($id, $password, $device)
 	{
 		if (!isLoginOk($id, hash('sha256', $password)))
 		{
@@ -31,11 +31,35 @@
 			return;
 		}
 
+		$token = createLoginToken($id, $device);
+
 		$_SESSION['userId'] = $id;
 
 		http_response_code(200);
 
-		echo ok($id);
+		echo ok($token);
+	}
+
+	function loginByToken ($tokenId)
+	{
+		$ownerId = getLoginTokenOwner($tokenId);
+
+		if (!$ownerId)
+		{
+			http_response_code(401);
+
+			echo error(5, "invalid login token");
+
+			return;
+		}
+
+		updateLoginToken($tokenId);
+
+		$_SESSION['userId'] = $ownerId;
+
+		http_response_code(200);
+
+		echo ok($tokenId);
 	}
 
 	function get ($id) 
@@ -109,11 +133,15 @@
 
 	if ($_SERVER['REQUEST_METHOD'] === 'POST')
 	{
-		$page = $_GET['id'];
+		$id = $_GET['id'];
 
-		if ($page === 'login')
+		if ($id === 'login')
 		{
-			login($_POST['username'], $_POST['password']);
+			login($_POST['username'], $_POST['password'], $_POST['device']);
+		}
+		else if ($id === 'login-by-token')
+		{
+			loginByToken($_POST['tokenId']);
 		}
 		else
 		{
