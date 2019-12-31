@@ -8,17 +8,10 @@
 
 	function createPdo ()
 	{
-		if($GLOBALS['MODE'] === 'prod')
-		{
-
-		}
-		else
-		 {
-			$host = 'localhost';
-			$database = 'sb';
-			$username = 'root';
-			$password = '';
-		 }
+		$host = $GLOBALS['DB_HOST'];
+		$database = $GLOBALS['DB_DB'];
+		$username = $GLOBALS['DB_USERNAME'];
+		$password = $GLOBALS['DB_PASSWORD'];
 
 		$options = [
 			PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,

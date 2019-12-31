@@ -127,8 +127,6 @@ export default {
 		},
 
 		moveEditedCell: function (dir) {
-			console.log('moveEditedCell');
-
 			var coords = this.getEditedCellCoords();
 
 			if (!coords) {
@@ -139,8 +137,6 @@ export default {
 			coords.y += Math.min(dir.y, 0);
 
 			this.editedCell = coords.x + ':' + coords.y;
-
-			console.log(this.editedCell);
 		}
 	},
 

@@ -5,11 +5,18 @@
 	padding: 0;
 }
 
+html, body {
+	overflow-x: hidden;
+}
+
 body {
+	position: relative;
 	background-color: #222;
-	color: #fff;
+	color: #000;
 	font-family: 'Roboto', sans-serif;
 	font-size: 20px;
+	width: 100%;
+	min-height: 100vh;
 }
 
 .center-page {
@@ -42,6 +49,7 @@ img {
  /* https://coolors.co/478ba2-de5b6d-e9765b-f2a490-b9d4db */
  .login {
  	background-color: #478BA2;
+ 	color: #fff;
  }
 
  button {
@@ -52,4 +60,17 @@ img {
 
 input {
 	background-color: #B9D4DB;
+}
+
+.panels {
+	background-color: #fff;
+}
+
+.panels > .title {
+	background-color: #E9765B;
+	color: #fff;
+}
+
+.panels .module .title {
+	color: #478BA2;
 }

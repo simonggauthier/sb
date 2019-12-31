@@ -5,7 +5,7 @@
 
 	function error ($id, $msg)
 	{
-		return "{\"error\": {\"msg\": \"$msg\", \"errorId\": $id}}";
+		return "{\"error\": {\"msg\": \"$msg\", \"id\": $id}}";
 	}
 
 	function ok ($id)
@@ -64,8 +64,6 @@
 
 	function get ($id) 
 	{
-		header('Content-Type: application/json; charset=utf-8');
-
 		if (!isset($_SESSION['userId']))
 		{
 			http_response_code(401);
@@ -93,8 +91,6 @@
 
 	function post ($id)
 	{
-		header('Content-Type: application/json; charset=utf-8');
-
 		if (!isset($_SESSION['userId']))
 		{
 			http_response_code(401);
@@ -104,7 +100,7 @@
 			return;
 		}
 
-		if (!$_POST['value'])
+		if (!isset($_POST['value']))
 		{
 			http_response_code(400);
 
@@ -130,6 +126,8 @@
 
 		echo ok($id);
 	}
+
+	header('Content-Type: application/json; charset=utf-8');
 
 	if ($_SERVER['REQUEST_METHOD'] === 'POST')
 	{

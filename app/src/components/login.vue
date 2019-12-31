@@ -38,9 +38,9 @@ export default {
 
 		this.$nextTick(() => {
 			Objects.loginByToken().then(() => {
-				console.log('loggedInByToken');
 				t.$emit('loggedIn');
 			}).catch((e) => {
+				console.log('Catch');
 				t.triedToken = true;
 			});
 		});
@@ -71,31 +71,31 @@ export default {
 	padding-bottom: 30px;
 }
 
-.logo {
+.login .logo {
 	height: 200px;
 	width: 100%;
 	margin-top: 20px;
 }
 
-.logo img {
+.login .logo img {
 	width: 75%;
 }
 
-h1 {
+.login h1 {
 	text-align: center;
 	font-size: 3em;
 }
 
-input {
+.login input {
 	width: 80%;
 	margin-bottom: 40px;
 }
 
-button {
+.login button {
 	width: 80%;
 }
 
-.error {
+.login .error {
 	text-align: center;
 	padding: 10px;
 	background-color: #fff;

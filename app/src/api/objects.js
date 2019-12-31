@@ -17,8 +17,6 @@ var Objects = {
 	login: (username, password) => {
 		var ret = new Promise((resolve, reject) => {
 			$.post(baseUrl + 'login', {username: username, password: password, device: getDevice()}, (data) => {
-				data = JSON.parse(data);
-
 				localStorage.setItem('loginToken', data['id']);
 
 				resolve();
@@ -36,13 +34,14 @@ var Objects = {
 		var ret = new Promise((resolve, reject) => {
 			if (!tokenId) {
 				reject('no-token');
+
+				return;
 			}
 
 			$.post(baseUrl + 'login-by-token', {tokenId: tokenId}, (data) => {
 				resolve();
 			}).fail((e) => {
 				localStorage.removeItem('loginToken');
-
 				reject(JSON.parse(e.responseText));
 			});
 		});
@@ -64,7 +63,9 @@ var Objects = {
 
 	set: (id, value) => {
 		var ret = new Promise((resolve, reject) => {
-			$.post(baseUrl + id, {value: value}, (data) => {
+			var form = {"value": JSON.stringify(value)};
+
+			$.post(baseUrl + id, form, (data) => {
 				resolve(data);
 			}).fail((e) => {
 				reject(JSON.parse(e.responseText));
