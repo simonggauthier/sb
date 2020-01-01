@@ -111,8 +111,6 @@
 
 		$json = $_POST['value'];
 
-		echo $json;
-
 		if (!isValidJson($json))
 		{
 			http_response_code(422);
