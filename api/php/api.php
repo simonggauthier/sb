@@ -111,6 +111,8 @@
 
 		$json = $_POST['value'];
 
+		echo $json;
+
 		if (!isValidJson($json))
 		{
 			http_response_code(422);
@@ -131,7 +133,12 @@
 
 	if ($_SERVER['REQUEST_METHOD'] === 'POST')
 	{
-		$id = $_GET['id'];
+		$id = '';
+
+		if (isset($_GET['id']))
+		{
+			$id = $_GET['id'];
+		}
 
 		if ($id === 'login')
 		{
@@ -143,7 +150,12 @@
 		}
 		else
 		{
-			post($_GET['id']);
+			if (isset($_POST['id']))
+			{
+				$id = $_POST['id'];
+			}
+
+			post($id);
 		}
 	}
 	else
