@@ -1,8 +1,7 @@
 <template>
 	<div class="content">
 		<login v-if="!isLoggedIn" v-on:loggedIn="onLoggedIn"></login>
-
-		<panels v-if="isLoggedIn" :model="model"></panels>
+		<panels v-if="isLoggedIn && appModel.loaded" :appModel="appModel"></panels>
 	</div>
 </template>
 
@@ -21,14 +20,21 @@ export default {
 		return {
 			isLoggedIn: false,
 
-			model: {
+			appModel: {
+				loaded: false,
 				book: null
 			}
 		}
 	},
 
 	mounted: function () {
-		this.loadBook();
+		var t = this;
+
+		this.appModel.save = function () {
+			return t.saveAppModel();
+		};
+
+		this.loadAppModel();
 	},
 
 	methods: {
@@ -36,11 +42,19 @@ export default {
 			this.isLoggedIn = true;
 		},
 
-		loadBook () {
+		loadAppModel () {
 			var t = this;
 
 			Objects.get('book').then((b) => {
-				t.model.book = b;
+				var result = Book.fromJson(b);
+
+				t.appModel.book = result.book;
+
+				if (result.converted) {
+					t.saveAppModel();
+				}
+
+				t.appModel.loaded = true;
 			}).catch((e) => {
 				if (e.error && e.error.id === 1) {
 					t.createBook();
@@ -48,16 +62,14 @@ export default {
 			});
 		},
 
-		saveModel () {
-			Objects.set('book', this.model.book);
+		saveAppModel () {
+			return Objects.set('book', this.appModel.book);
 		},
 
 		createBook () {
-			this.model.book = new Book();
+			this.appModel.book = new Book();
 
-			this.model.book.addTransaction('Bouffe', 'Épicerie', '20.00', new Date().getTime());
-
-			this.saveModel();
+			this.saveAppModel();
 		},
 	},
 

@@ -11,11 +11,11 @@
 			</div>
 
 			<div class="fields">
-				<input type="text" class="center-h" placeholder="Username" v-model="username" autocomplete="off" />
-				<input type="password" class="center-h" placeholder="Password" v-model="password" autocomplete="new-password" v-on:keyup.enter="doLogin" />
+				<input type="text" class="center-h" placeholder="Nom d'utilisateur" v-model="username" autocomplete="off" />
+				<input type="password" class="center-h" placeholder="Mot de passe" v-model="password" autocomplete="new-password" v-on:keyup.enter="doLogin" />
 			</div>
 
-			<button type="button" class="center-h" v-on:click="doLogin">Login</button>
+			<button type="button" class="center-h" v-on:click="doLogin">Connexion</button>
 		</div>
 	</div>
 </template>
@@ -37,10 +37,15 @@ export default {
 		var t = this;
 
 		this.$nextTick(() => {
+			console.log('Login by token');
+
 			Objects.loginByToken().then(() => {
+				console.log('Logged in');
+
 				t.$emit('loggedIn');
 			}).catch((e) => {
 				console.log('Catch');
+
 				t.triedToken = true;
 			});
 		});
@@ -53,7 +58,7 @@ export default {
 			Objects.login(this.username, this.password).then(() => {
 				t.$emit('loggedIn');
 			}).catch((e) => {
-				t.error = 'Wrong login';
+				t.error = 'Erreur de connexion';
 			});
 		}
 	},

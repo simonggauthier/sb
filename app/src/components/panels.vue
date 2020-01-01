@@ -6,7 +6,13 @@
 		</div>
 
 		<div class="modules">
-			<transaction-list :model="model"></transaction-list>
+			<div class="module">
+				<transaction-list :appModel="appModel"></transaction-list>
+			</div>
+
+			<div class="module">
+				<transaction-importer :appModel="appModel"></transaction-importer>
+			</div>
 		</div>
 	</div>
 </template>
@@ -15,6 +21,7 @@
 import Vue from 'vue';
 
 import TransactionList from './modules/transaction-list.vue';
+import TransactionImporter from './modules/transaction-importer.vue';
 
 export default {
 	data () {
@@ -23,7 +30,7 @@ export default {
 		}
 	},
 
-	props: ['model'],
+	props: ['appModel'],
 
 	mounted: function () {
 
@@ -34,7 +41,8 @@ export default {
 	},
 
 	components: {
-		TransactionList
+		TransactionList,
+		TransactionImporter
 	}
 }
 </script>
@@ -42,7 +50,7 @@ export default {
 <style>
 
 .panels {
-	height: 2000px;
+
 }
 
 .panels > .title {
@@ -56,7 +64,11 @@ export default {
 }
 
 .panels .modules {
-	padding: 20px 0 10px 10px;
+	padding: 20px 10px 10px 10px;
+}
+
+.panels .module {
+	margin-bottom: 20px;
 }
 
 .panels .module .title {
