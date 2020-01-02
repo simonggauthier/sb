@@ -53,8 +53,10 @@ export default {
 				if (result.converted) {
 					t.saveAppModel();
 				}
-
+				
 				t.appModel.loaded = true;
+
+				window.appModel = t.appModel;
 			}).catch((e) => {
 				if (e.error && e.error.id === 1) {
 					t.createBook();

@@ -4,7 +4,7 @@
 			<table>
 				<thead>
 					<tr>
-						<th v-for="(col, key) in tableModel.columns" v-on:click="changeSort(key)" v-bind:class="{ money: col.type === 'money' }" style="width: ">
+						<th v-for="(col, key) in tableModel.columns" v-on:click="changeSort(key)" v-bind:class="{ money: col.type === 'money' }" v-bind:style="{ width: col.width }">
 							<span>{{ col.title }}</span>
 							<i v-if="tableModel.sort.key === key && tableModel.sort.direction === 'descending'" class="fas fa-arrow-circle-up"></i>
 							<i v-if="tableModel.sort.key === key && tableModel.sort.direction === 'ascending'" class="fas fa-arrow-circle-down"></i>
@@ -13,8 +13,10 @@
 				</thead>
 
 				<tbody class="scroll">
-					<tr v-for="(row, i) in sort()" v-if="tableModel.filter && tableModel.filter(row)">
-						<td v-for="(col, key) in tableModel.columns" v-bind:class="{ money: col.type === 'money' }">
+					<tr v-for="(row, i) in sort()" v-if="tableModel.filter && tableModel.filter(row)" v-on:click="onRowClick(row)" v-bind:class="{ selected: selectedRow === row }">
+						<td v-for="(col, key) in tableModel.columns" v-bind:class="{ money: col.type === 'money' }" v-bind:style="{ width: col.width }">
+							<color-square v-if="col.type === 'color' || col.type === 'category'" :edit="false" :color="findSquareColor(col, row[key])"></color-square>
+
 							{{ format(row, col, key) }}
 						</td>
 					</tr>
@@ -27,16 +29,18 @@
 <script>
 import Vue from 'vue';
 
+import ColorSquare from '../color-square/color-square.vue';
+
 import Formatting from '../../formatting.js';
 
 export default {
 	data () {
 		return {
-			
+			selectedRow: null
 		}
 	},
 
-	props: ['tableModel', 'tableData'],
+	props: ['tableModel', 'tableData', 'selectable'],
 
 	mounted: function () {
 
@@ -52,6 +56,8 @@ export default {
 				return Formatting.date(v);
 			} else if (col.type === 'money') {
 				return Formatting.money(v);
+			} else if (col.type === 'category') {
+				return col.findCategory(v).name;
 			} else {
 				return v;
 			}
@@ -69,7 +75,7 @@ export default {
 				x = x[key];
 				y = y[key];
 
-				if (col.type === 'string') {
+				if (col.type === 'string' || col.type === 'color') {
 					return x.localeCompare(y);
 				} else if (col.type === 'number') {
 					return x - y;
@@ -77,6 +83,8 @@ export default {
 					return x - y;
 				} else if (col.type === 'money') {
 					return parseFloat(x) - parseFloat(y);
+				} else if (col.type === 'category') {
+					return col.findCategory(x).name.localeCompare(col.findCategory(y).name);
 				} else {
 					return 0;
 				}
@@ -94,11 +102,36 @@ export default {
 			}
 
 			this.tableModel.sort.key = key;
+		},
+
+		findSquareColor (col, value) {
+			if (col.type === 'color') {
+				return value;
+			} else if (col.type === 'category') {
+				return col.findCategory(value).color;
+			}
+		},
+
+		onRowClick (row) {
+			this.select(row);
+		},
+
+		select (row) {
+			if (this.selectable) {
+				if (this.selectedRow === row) {
+					this.selectedRow = null;
+					this.$emit('unselected');
+				} else {
+					this.selectedRow = row;
+
+					this.$emit('selected', row);
+				}
+			}
 		}
 	},
 
 	components: {
-
+		ColorSquare
 	}
 }
 </script>

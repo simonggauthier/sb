@@ -7,11 +7,15 @@
 
 		<div class="modules">
 			<div class="module">
+				<add-transaction :appModel="appModel"></add-transaction>
+			</div>
+
+			<div class="module">
 				<transaction-list :appModel="appModel"></transaction-list>
 			</div>
 
 			<div class="module">
-				<transaction-importer :appModel="appModel"></transaction-importer>
+				<category-editor :appModel="appModel"></category-editor>
 			</div>
 		</div>
 	</div>
@@ -20,8 +24,9 @@
 <script>
 import Vue from 'vue';
 
+import AddTransaction from './modules/add-transaction.vue';
 import TransactionList from './modules/transaction-list.vue';
-import TransactionImporter from './modules/transaction-importer.vue';
+import CategoryEditor from './modules/category-editor.vue';
 
 export default {
 	data () {
@@ -41,8 +46,9 @@ export default {
 	},
 
 	components: {
+		AddTransaction,
 		TransactionList,
-		TransactionImporter
+		CategoryEditor
 	}
 }
 </script>

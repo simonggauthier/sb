@@ -37,10 +37,17 @@ body {
 input, button, textarea {
 	border: 0;
 	display: block;
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Courier Prime', monospace;
 	box-sizing: border-box;
-	font-size: 20px;
+	font-size: 1em;
 	padding: 6px;
+	margin-bottom: 10px;
+}
+
+@media only screen and (max-width: 600px) {
+	input, button, textarea {
+		font-size: 0.6em;
+	}
 }
 
 img {
@@ -87,6 +94,25 @@ td {
 	thead {
 	    width: 100% /* scrollbar is average 1em/16px width, remove it from thead width */
 	}
+
+	.color-square {
+		width: 0.5em;
+		height: 0.5em;
+	}
+}
+
+button {
+	margin: 10px 0;
+}
+
+.color-edit:after {
+	content: '';
+	display: block;
+	clear: both;
+}
+
+input.color {
+	width: 100px!important;
 }
 
  /* Skin */
@@ -96,14 +122,20 @@ td {
 	color: #fff;
 }
 
- button {
+button {
 	background-color: #E9765B;
 	color: #fff;
 	font-weight: bold;
 }
 
 input, textarea {
-	background-color: #B9D4DB;
+	background-color: #fff;
+	border-bottom: solid 4px #B9D4DB;
+}
+
+::placeholder {
+	color: #B9D4DB;
+	font-weight: bold;
 }
 
 .panels {
@@ -116,22 +148,35 @@ input, textarea {
 	color: #fff;
 }
 
-.panels .module .title {
+.panels .module h2 {
 	border-bottom: 10px solid #F2A490;
 	color: #E9765B;
+	margin-bottom: 10px;
+	font-size: 1.5em;
+}
+
+.panels .module h3 {
+	color: #E9765B;
+	margin-bottom: 10px;
+	font-size: 1em;
 }
 
 label {
+	display: block;
+	width: 100px;
+	text-align: center;
 	background-color: #F2A490;
 	color: #fff;
-	padding: 3px 10px;
+	padding: 3px 0;
 	border-radius: 25px;
 	font-size: 0.8em;
 	font-weight: bold;
+	margin: 10px 0;
 }
 
 table {
 	background-color: #478BA2;
+	cursor: default;
 }
 
 thead {
@@ -146,6 +191,14 @@ tbody tr:nth-child(even) {
 	background-color: #eee;
 }
 
+tr.selected {
+	background-color: #ddd!important;
+}
+
 .switcher {
+	color: #DE5B6D;
+}
+
+.category-editor .add {
 	color: #DE5B6D;
 }

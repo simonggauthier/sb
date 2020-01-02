@@ -1,8 +1,6 @@
 <template>
 	<div class="module transaction-list">
-		<div class="title">
-			Transactions
-		</div>
+		<h2>Transactions</h2>
 
 		<div class="options">
 			<div class="option">
@@ -17,7 +15,7 @@
 		</div>
 
 		<div class="transactions">
-			<data-table :tableModel="table" :tableData="appModel.book.transactions"></data-table>
+			<data-table :tableModel="table" :tableData="appModel.book.transactions" :selectable="true"></data-table>
 		</div>
 	</div>
 </template>
@@ -45,17 +43,21 @@ export default {
 					'date': {
 						title: 'Date',
 						type: 'date',
-						width: '20%'
+						width: '25%'
 					},
 					'title': {
 						title: 'Titre',
 						type: 'string',
-						width: '30%'
+						width: '25%'
 					},
 					'category': {
 						title: 'Catégorie',
-						type: 'string',
-						width: '30%'
+						type: 'category',
+						width: '30%',
+						
+						findCategory: (key) => {
+							return t.appModel.book.findCategory(key);
+						}
 					},
 					'amount': {
 						title: 'Montant',
@@ -133,9 +135,5 @@ export default {
 
 	.transaction-list .scroll {
 		max-height: 300px;
-	}
-
-	.transaction-list .switcher {
-		margin-top: 10px;
 	}
 </style>
