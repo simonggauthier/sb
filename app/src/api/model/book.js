@@ -1,4 +1,5 @@
 import uuid from 'uuid/v4';
+import { formatDate } from '../../date.js';
 
 var Descriptions = {
 	TransactionCategory: {
@@ -99,9 +100,20 @@ var Converter = {
 			} else {
 				t.category = c.key;
 			}
+		});	
 
-			book.version = 6;
-		});		
+		book.version = 6;	
+	}
+};
+
+var TransactionSorters = {
+	date: (direction) => {
+		return (a, b) => {
+			var x = direction === 'ascending' ? a : b;
+			var y = direction === 'ascending' ? b : a;
+
+			return x.date - y.date;
+		};
 	}
 };
 
@@ -119,22 +131,45 @@ class Book {
 			name,
 			color
 		});
+
+		return this.categories[this.categories.length - 1];
 	}
 
 	addTransaction (title, category, amount, date, direction) {
 		this.transactions.push({
+			key: uuid(),
 			title,
 			category,
 			amount,
 			date,
 			direction
 		});
+
+		return this.transactions[this.transactions.length - 1];
 	}
 
-	removeTransaction (id) {
-		this.transactions = this.transactions.filter((v) => {
-			return v.id != id;
+	removeTransaction (key) {
+		var transaction = this.getTransaction(key);
+
+		if (transaction === null) {
+			return;
+		}
+
+		this.transactions.splice(this.transactions.indexOf(transaction), 1);
+	}
+
+	getTransaction (key) {
+		return this.transactions.find((t) => {
+			return t.key === key;
 		});
+	}
+
+	getLastTransaction () {
+		if (this.transactions.length === 0) {
+			return null;
+		}
+
+		return this.transactions.sort(TransactionSorters.date('descending'))[0];
 	}
 
 	findCategory (key) {
@@ -153,9 +188,30 @@ class Book {
 		})
 
 		is.reverse().forEach((i) => {
-			console.log('splice ' + i);
 			this.categories.splice(i, 1);
 		});
+	}
+
+	months () {
+		var ret = {};
+
+		this.transactions.sort(TransactionSorters.date('ascending')).forEach((t) => {
+			var m = formatDate(t.date, 'yyyy-MM');
+
+			if (!ret[m]) {
+				ret[m] = {
+					name: Book.findMonthName(t)
+				}
+			};
+		});
+
+		return ret;
+	}
+
+	static findMonthName (transaction) {
+		var ret = formatDate(transaction.date, 'MMMM yyyy');
+
+		return ret.substring(0, 1).toUpperCase() + ret.substring(1);
 	}
 
 	static fromJson (json) {

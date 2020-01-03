@@ -15,8 +15,10 @@
 		</div>
 
 		<div class="transactions">
-			<data-table :tableModel="table" :tableData="appModel.book.transactions" :selectable="true"></data-table>
+			<data-table :tableModel="table" :tableData="appModel.book.transactions" :selectable="true" @selected="onTransactionSelected" @unselected="onTransactionUnselected"></data-table>
 		</div>
+
+		<button type="button" v-if="selectedTransaction != null" @click="onDeleteTransaction">Supprimer</button>
 	</div>
 </template>
 
@@ -24,6 +26,7 @@
 import Vue from 'vue';
 
 import Formatting from '../../formatting.js';
+import { formatDate } from '../../date.js';
 
 import Switcher from '../switcher/switcher.vue';
 import DataTable from '../table/data-table.vue';
@@ -72,39 +75,39 @@ export default {
 				}
 			},
 
-			monthSwitcherList: {
-				'2019-11': {
-					title: 'Novembre'
-				},
-
-				'2019-12': {
-					title: 'Décembre'
-				}
-			},
-
 			transactionDirectionSwitcherList: {
 				'input': {
-					title: 'Entrées'
+					name: 'Entrées'
 				},
 
 				'output': {
-					title: 'Sorties'
+					name: 'Sorties'
 				}
 			},
 
 			transactionDirection: 'output',
-			month: '2019-12'
+			month: formatDate(t.appModel.book.getLastTransaction().date, 'yyyy-MM'),
+
+			selectedTransaction: null
 		}
 	},
 
 	props: ['appModel'],
 
-	mounted: function () {
+	mounted () {
 
 	},
 
+	updated () {
+		var monthSwitcherList = this.monthSwitcherList;
+
+		if (!monthSwitcherList[this.month]) {
+			this.month = Object.keys(monthSwitcherList)[Object.keys(monthSwitcherList).length - 1];
+		}
+	},
+
 	methods: {
-		order: function () {
+		order () {
 			return this.appModel.book.transactions.concat().sort((a, b) => {
 				if (this.sort.mode === 'date') {
 					if (this.sort.dir === 'acsending') {
@@ -114,6 +117,26 @@ export default {
 					}
 				}
 			});
+		},
+
+		onTransactionSelected (transaction) {
+			this.selectedTransaction = transaction;
+		},
+
+		onTransactionUnselected () {
+			this.selectedTransaction = null;
+		},
+
+		onDeleteTransaction () {
+			this.appModel.book.removeTransaction(this.selectedTransaction.key);
+
+			this.appModel.save();
+		}
+	},
+
+	computed: {
+		monthSwitcherList () {
+			return this.appModel.book.months();
 		}
 	},
 
@@ -125,15 +148,17 @@ export default {
 </script>
 
 <style>
+
 	.transaction-list .options {
 		margin-top: 20px;
-	}
-
-	.transaction-list .option {
-		margin-bottom: 10px;
 	}
 
 	.transaction-list .scroll {
 		max-height: 300px;
 	}
+
+	.transaction-list button {
+		width: 100%;
+	}
+
 </style>

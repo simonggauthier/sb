@@ -112,10 +112,6 @@ export default {
 			}
 		},
 
-		onRowClick (row) {
-			this.select(row);
-		},
-
 		select (row) {
 			if (this.selectable) {
 				if (this.selectedRow === row) {
@@ -127,6 +123,10 @@ export default {
 					this.$emit('selected', row);
 				}
 			}
+		},
+
+		onRowClick (row) {
+			this.select(row);
 		}
 	},
 

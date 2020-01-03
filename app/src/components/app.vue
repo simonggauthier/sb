@@ -17,29 +17,31 @@ import Panels from './panels.vue';
 
 export default {
 	data () {
+		var t = this;
+
 		return {
 			isLoggedIn: false,
 
 			appModel: {
 				loaded: false,
-				book: null
+				book: null,
+
+				save: function () {
+					return t.saveAppModel();
+				}
 			}
 		}
 	},
 
 	mounted: function () {
-		var t = this;
 
-		this.appModel.save = function () {
-			return t.saveAppModel();
-		};
-
-		this.loadAppModel();
 	},
 
 	methods: {
 		onLoggedIn () {
 			this.isLoggedIn = true;
+
+			this.loadAppModel();
 		},
 
 		loadAppModel () {

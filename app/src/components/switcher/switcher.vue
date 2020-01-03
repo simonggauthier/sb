@@ -5,7 +5,7 @@
 		</div>
 
 		<div class="option" v-for="(el, key) in list" v-if="key === value">
-			{{ el.title }}
+			{{ el.name }}
 		</div>
 
 		<div class="switch" v-on:click="next(1)">
@@ -28,7 +28,7 @@ export default {
 
 	props: ['list', 'value'],
 
-	mounted: function () {
+	mounted () {
 
 	},
 
@@ -46,6 +46,8 @@ export default {
 			if (index >= keys.length) {
 				index = 0;
 			}
+
+			console.log(this.list);
 
 			this.$emit('input', keys[index]);
 		}
@@ -75,7 +77,7 @@ export default {
 }
 
 .switcher {
-	font-size: 1em;
+	font-size: 0.8em;
 	font-weight: bold;
 }
 
