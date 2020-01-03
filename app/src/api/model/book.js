@@ -49,7 +49,6 @@ var Descriptions = {
 	}
 };
 
-
 var CURRENT_VERSION = 6;
 
 var Converter = {
@@ -206,6 +205,25 @@ class Book {
 		});
 
 		return ret;
+	}
+
+	report (month) {
+		var transactions = this.transactions.filter((t) => {
+			return formatDate(t.date, 'yyyy-MM') === month;
+		});
+
+		var input = 0;
+		var output = 0;
+
+		transactions.forEach((t) => {
+			if (t.direction === 'input') {
+				input += parseFloat(t.amount);
+			} else {
+				output += parseFloat(t.amount);
+			}
+		});
+
+		return input - output;
 	}
 
 	static findMonthName (transaction) {

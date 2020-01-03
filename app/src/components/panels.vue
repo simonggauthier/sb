@@ -37,7 +37,7 @@ export default {
 
 	props: ['appModel'],
 
-	mounted: function () {
+	mounted () {
 
 	},
 

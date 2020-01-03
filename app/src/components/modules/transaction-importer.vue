@@ -30,12 +30,12 @@ export default {
 
 	props: ['appModel'],
 
-	mounted: function () {
+	mounted () {
 
 	},
 
 	methods: {
-		doImport: function () {
+		doImport () {
 			var lines = this.raw.split('\n');
 			var d = this.month.split('-');
 

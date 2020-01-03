@@ -66,7 +66,7 @@ export default {
 
 	props: ['appModel'],
 
-	mounted: function () {
+	mounted () {
 
 	},
 
@@ -112,7 +112,7 @@ export default {
 <style>
 	.category-editor .form {
 		margin-top: 10px;
-		width: 40%;
+		width: 100%;
 	}
 
 	.category-editor .form input {

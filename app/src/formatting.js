@@ -14,6 +14,10 @@ var Formatting = {
 			m = m + '.00';
 		}
 
+		if (m.indexOf('.') === 0) {
+			m = '0' + m;
+		}
+
 		return m;
 	}
 };

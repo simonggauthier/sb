@@ -42,7 +42,16 @@ var Objects = {
 				resolve();
 			}).fail((e) => {
 				localStorage.removeItem('loginToken');
-				reject(JSON.parse(e.responseText));
+				
+				var json;
+
+				try {
+					json = JSON.parse(e.responseText);
+				} catch (e) {
+					json = e;
+				}
+
+				reject(json);
 			});
 		});
 
@@ -54,7 +63,15 @@ var Objects = {
 			$.get(baseUrl + id, (data) => {
 				resolve(data);
 			}).fail((e) => {
-				reject(JSON.parse(e.responseText));
+				var json;
+
+				try {
+					json = JSON.parse(e.responseText);
+				} catch (e) {
+					json = e;
+				}
+
+				reject(json);
 			});
 		});
 
@@ -68,7 +85,15 @@ var Objects = {
 			$.post(baseUrl + id, form, (data) => {
 				resolve(data);
 			}).fail((e) => {
-				reject(JSON.parse(e.responseText));
+				var json;
+
+				try {
+					json = JSON.parse(e.responseText);
+				} catch (e) {
+					json = e;
+				}
+
+				reject(json);
 			});
 		});
 

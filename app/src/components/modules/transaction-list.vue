@@ -14,6 +14,11 @@
 			</div>
 		</div>
 
+		<div class="report">
+			<label>Économies</label>
+			<input type="text" disabled="disabled" :value="monthEconomies" />
+		</div>
+
 		<div class="transactions">
 			<data-table :tableModel="table" :tableData="appModel.book.transactions" :selectable="true" @selected="onTransactionSelected" @unselected="onTransactionUnselected"></data-table>
 		</div>
@@ -129,6 +134,7 @@ export default {
 
 		onDeleteTransaction () {
 			this.appModel.book.removeTransaction(this.selectedTransaction.key);
+			this.selectedTransaction = null;
 
 			this.appModel.save();
 		}
@@ -137,6 +143,16 @@ export default {
 	computed: {
 		monthSwitcherList () {
 			return this.appModel.book.months();
+		},
+
+		monthEconomies () {
+			var e = this.appModel.book.report(this.month);
+
+			if (e < 0) {
+				return 'En attente';
+			}
+
+			return Formatting.money(this.appModel.book.report(this.month));
 		}
 	},
 

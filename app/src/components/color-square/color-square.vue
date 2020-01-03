@@ -12,7 +12,7 @@ export default {
 
 	props: ['edit', 'color'],
 
-	mounted: function () {
+	mounted () {
 		
 	},
 

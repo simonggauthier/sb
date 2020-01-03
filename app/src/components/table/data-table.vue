@@ -42,7 +42,7 @@ export default {
 
 	props: ['tableModel', 'tableData', 'selectable'],
 
-	mounted: function () {
+	mounted () {
 
 	},
 

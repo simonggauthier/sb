@@ -111,8 +111,19 @@ td {
 	clear: both;
 }
 
+label {
+	padding: 3px 0;
+	border-radius: 25px;
+	font-size: 0.7em;
+	font-weight: bold;
+	margin: 10px 0;
+	display: block;
+	width: 125px;
+	text-align: center;
+}
+
 input.color {
-	width: 100px!important;
+	width: 200px!important;
 }
 
 .form .info {
@@ -156,7 +167,7 @@ input, textarea, select {
 }
 
 ::placeholder, select.placeholder {
-	color: #B9D4DB;
+	color: #99a4aB;
 }
 
 select:focus {
@@ -187,16 +198,8 @@ select:focus {
 }
 
 label {
-	display: block;
-	width: 125px;
-	text-align: center;
 	background-color: #F2A490;
 	color: #fff;
-	padding: 3px 0;
-	border-radius: 25px;
-	font-size: 0.7em;
-	font-weight: bold;
-	margin: 10px 0;
 }
 
 table {

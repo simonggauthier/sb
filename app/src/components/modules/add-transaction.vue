@@ -30,7 +30,7 @@
 				</option>
 			</select>
 
-			<input type="text" placeholder="> Montant" v-model="form.amount" @change="onAmountChange" >
+			<input type="number" min="0.01" step="0.01" placeholder="> Montant" v-model="form.amount" @change="onAmountChange" >
 
 			<button class="icon" type="button" @click="onAdd">Ajouter</button>
 		</div>
@@ -85,7 +85,7 @@ export default {
 
 	props: ['appModel'],
 
-	mounted: function () {
+	mounted () {
 
 	},
 
@@ -140,6 +140,8 @@ export default {
 
 				this.appModel.save().then(() => {
 					t.message = 'Transaction ' + transaction.key + ' créée avec succès!';
+				}).catch((e) => {
+					t.error = 'Could not save';
 				});
 			}
 		},

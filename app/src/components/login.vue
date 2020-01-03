@@ -33,7 +33,7 @@ export default {
 		}
 	},
 
-	mounted: function () {
+	mounted () {
 		var t = this;
 
 		this.$nextTick(() => {
@@ -89,6 +89,10 @@ export default {
 .login h1 {
 	text-align: center;
 	font-size: 3em;
+}
+
+.login .form {
+	border: 0;
 }
 
 .login input {
