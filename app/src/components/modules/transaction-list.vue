@@ -20,7 +20,7 @@
 		</div>
 
 		<div class="transactions">
-			<data-table :tableModel="table" :tableData="appModel.book.transactions" :selectable="true" @selected="onTransactionSelected" @unselected="onTransactionUnselected"></data-table>
+			<data-table :tableModel="table" :tableData="objects.book.transactions" :selectable="true" @selected="onTransactionSelected" @unselected="onTransactionUnselected"></data-table>
 		</div>
 
 		<button type="button" v-if="selectedTransaction != null" @click="onDeleteTransaction">Supprimer</button>
@@ -28,13 +28,12 @@
 </template>
 
 <script>
-import Vue from 'vue';
+import Formatting from 'util/formatting';
+import Dates from 'util/dates';
+import { BookReport } from 'api/model/book';
 
-import Formatting from '../../formatting.js';
-import { formatDate } from '../../date.js';
-
-import Switcher from '../switcher/switcher.vue';
-import DataTable from '../table/data-table.vue';
+import Switcher from 'components/switcher';
+import DataTable from 'components/data-table';
 
 export default {
 	data () {
@@ -63,8 +62,8 @@ export default {
 						type: 'category',
 						width: '30%',
 						
-						findCategory: (key) => {
-							return t.appModel.book.findCategory(key);
+						getCategory: (key) => {
+							return t.objects.book.getCategory(key);
 						}
 					},
 					'amount': {
@@ -91,29 +90,29 @@ export default {
 			},
 
 			transactionDirection: 'output',
-			month: formatDate(t.appModel.book.getLastTransaction().date, 'yyyy-MM'),
+			month: '',
 
 			selectedTransaction: null
 		}
 	},
 
-	props: ['appModel'],
+	props: ['objects'],
 
 	mounted () {
+		var transaction = new BookReport(this.objects.book).getMostRecentTransaction();
 
+		if (transaction) {
+			this.month = Dates.getMonth(transaction.date);
+		}
 	},
 
 	updated () {
-		var monthSwitcherList = this.monthSwitcherList;
 
-		if (!monthSwitcherList[this.month]) {
-			this.month = Object.keys(monthSwitcherList)[Object.keys(monthSwitcherList).length - 1];
-		}
 	},
 
 	methods: {
 		order () {
-			return this.appModel.book.transactions.concat().sort((a, b) => {
+			return this.objects.book.transactions.concat().sort((a, b) => {
 				if (this.sort.mode === 'date') {
 					if (this.sort.dir === 'acsending') {
 						return a.date - b.date;
@@ -133,26 +132,35 @@ export default {
 		},
 
 		onDeleteTransaction () {
-			this.appModel.book.removeTransaction(this.selectedTransaction.key);
+			this.objects.book.removeTransaction(this.selectedTransaction.key);
 			this.selectedTransaction = null;
 
-			this.appModel.save();
+			this.objects.save();
 		}
 	},
 
 	computed: {
 		monthSwitcherList () {
-			return this.appModel.book.months();
+			var months = new BookReport(this.objects.book).getAllMonths();
+			var ret = {};
+
+			months.forEach((month) => {
+				ret[month] = {
+					name: Dates.getMonthName(Dates.parse(month + '-01'))
+				};
+			});
+
+			return ret;
 		},
 
 		monthEconomies () {
-			var e = this.appModel.book.report(this.month);
+			var e = new BookReport(this.objects.book).getSavingsForMonth(this.month);
 
 			if (e < 0) {
 				return 'En attente';
 			}
 
-			return Formatting.money(this.appModel.book.report(this.month));
+			return Formatting.money(e);
 		}
 	},
 

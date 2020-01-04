@@ -1,5 +1,5 @@
 import uuid from 'uuid/v4';
-import { formatDate } from '../../date.js';
+import Dates from 'util/dates';
 
 var Descriptions = {
 	TransactionCategory: {
@@ -13,16 +13,6 @@ var Descriptions = {
 
 		color: {
 			type: 'color'
-		}
-	},
-
-	TransactionDirection: {
-		key: {
-			type: 'string'
-		},
-
-		name: {
-			type: 'string'
 		}
 	},
 
@@ -44,77 +34,12 @@ var Descriptions = {
 		},
 
 		direction: {
-			type: 'TransactionDirection'
+			type: 'TransactionDirection { input, output }'
 		}
 	}
 };
 
-var CURRENT_VERSION = 6;
-
-var Converter = {
-	'1-2': (book) => {
-		book.transactions.forEach((t) => {
-			t.direction = 'output';
-		});
-
-		book.version = 2;
-	},
-
-	'2-3': (book) => {
-		book.transactions.forEach((t) => {
-			t.amount = t.amount.replace(',', '');
-		});
-
-		book.version = 3;
-	},
-
-	'3-4': (book) => {
-		book.version = 4;
-	},
-
-	'4-5': (book) => {
-		book.transactions.forEach((t) => {
-			t.key = uuid()
-		});
-
-		book.version = 5;
-	},
-
-	'5-6': (book) => {
-		book.transactions.forEach((t) => {
-			var c = null;
-
-			for (var i = 0; i < book.categories.length; i++) {
-				if (t.category === 'Hydro') {
-					t.category = 'Électricité';
-				}
-
-				if (book.categories[i].name === t.category) {
-					c = book.categories[i];
-				}
-			}
-
-			if (!c) {
-				console.log('Category ' + t.category + ' not found');
-			} else {
-				t.category = c.key;
-			}
-		});	
-
-		book.version = 6;	
-	}
-};
-
-var TransactionSorters = {
-	date: (direction) => {
-		return (a, b) => {
-			var x = direction === 'ascending' ? a : b;
-			var y = direction === 'ascending' ? b : a;
-
-			return x.date - y.date;
-		};
-	}
-};
+const CURRENT_VERSION = 6;
 
 class Book {
 	constructor () {
@@ -122,16 +47,6 @@ class Book {
 
 		this.categories = [];
 		this.transactions = [];
-	}
-
-	addCategory (name, color) {
-		this.categories.push({
-			key: uuid(),
-			name,
-			color
-		});
-
-		return this.categories[this.categories.length - 1];
 	}
 
 	addTransaction (title, category, amount, date, direction) {
@@ -163,73 +78,20 @@ class Book {
 		});
 	}
 
-	getLastTransaction () {
-		if (this.transactions.length === 0) {
-			return null;
-		}
+	addCategory (name, color) {
+		this.categories.push({
+			key: uuid(),
+			name,
+			color
+		});
 
-		return this.transactions.sort(TransactionSorters.date('descending'))[0];
+		return this.categories[this.categories.length - 1];
 	}
 
-	findCategory (key) {
+	getCategory (key) {
 		return this.categories.find((c) => {
 			return c.key === key;
 		});
-	}
-
-	cleanup () {
-		var is = [];
-
-		this.categories.forEach((c, i) => {
-			if (c.color === '000000') {
-				is.push(i);
-			}
-		})
-
-		is.reverse().forEach((i) => {
-			this.categories.splice(i, 1);
-		});
-	}
-
-	months () {
-		var ret = {};
-
-		this.transactions.sort(TransactionSorters.date('ascending')).forEach((t) => {
-			var m = formatDate(t.date, 'yyyy-MM');
-
-			if (!ret[m]) {
-				ret[m] = {
-					name: Book.findMonthName(t)
-				}
-			};
-		});
-
-		return ret;
-	}
-
-	report (month) {
-		var transactions = this.transactions.filter((t) => {
-			return formatDate(t.date, 'yyyy-MM') === month;
-		});
-
-		var input = 0;
-		var output = 0;
-
-		transactions.forEach((t) => {
-			if (t.direction === 'input') {
-				input += parseFloat(t.amount);
-			} else {
-				output += parseFloat(t.amount);
-			}
-		});
-
-		return input - output;
-	}
-
-	static findMonthName (transaction) {
-		var ret = formatDate(transaction.date, 'MMMM yyyy');
-
-		return ret.substring(0, 1).toUpperCase() + ret.substring(1);
 	}
 
 	static fromJson (json) {
@@ -237,21 +99,12 @@ class Book {
 		var converted = false;
 
 		if (ret.version != CURRENT_VERSION) {
-			var f = Converter[ret.version + '-' + CURRENT_VERSION];
+			console.log('Current book version != json.version');
 
-			if (f) {
-				console.log('Converting book from version ' + ret.version + ' to ' + CURRENT_VERSION);
+			console.log(json.version);
 
-				f(ret);
-
-				if (ret.version === CURRENT_VERSION) {
-					converted = true;
-				}
-				
-			}	
+			ret = null;
 		}
-
-		ret.cleanup();
 
 		return {
 			converted,
@@ -260,4 +113,66 @@ class Book {
 	}
 }
 
-export default Book;
+class BookReport {
+	constructor (book) {
+		this.book = book;
+
+		this.sorters = {
+			date: (direction) => {
+				return (a, b) => {
+					var x = direction === 'ascending' ? a : b;
+					var y = direction === 'ascending' ? b : a;
+
+					return x.date - y.date;
+				};
+			}
+		};
+	}
+
+	getMostRecentTransaction () {
+		if (this.book.transactions.length === 0) {
+			return null;
+		}
+
+		return this.book.transactions.sort(this.sorters.date('descending'))[0];
+	}
+
+	getAllMonths () {
+		return this.book.transactions.sort(this.sorters.date('ascending')).map((transaction) => {
+			return Dates.getMonth(transaction.date);
+		}).filter((monthName, i, self) => {
+			return self.indexOf(monthName) === i;
+		});
+	}
+
+	getTransactionsForMonth (monthName) {
+		return this.book.transactions.filter((transaction) => {
+			return Dates.getMonth(transaction.date) === monthName;
+		});
+	}
+
+	getSavingsForMonth (monthName) {
+		var ret = this.getTransactionsForMonth(monthName).map((transaction) => {
+			var v = parseFloat(transaction.amount);
+			
+			if (transaction.direction === 'output') {
+				v = 0 - v;
+			}
+
+			return v;
+		});
+
+		if (ret.length === 0) {
+			return 0;
+		}
+
+		 return ret.reduce((acc, curr) => {
+			return acc + curr;
+		});
+	}
+}
+
+export { 
+	Book,
+	BookReport
+};

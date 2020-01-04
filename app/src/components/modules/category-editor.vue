@@ -7,7 +7,7 @@
 		</div>
 
 		<div class="categories">
-			<data-table ref="table" :tableModel="table" :tableData="appModel.book.categories" :selectable="true" @selected="onSelect" @unselected="onUnselect"></data-table>
+			<data-table ref="table" :tableModel="table" :tableData="objects.book.categories" :selectable="true" @selected="onSelect" @unselected="onUnselect"></data-table>
 		</div>
 
 		<div class="form" v-if="editing">
@@ -23,10 +23,8 @@
 </template>
 
 <script>
-import Vue from 'vue';
-
-import DataTable from '../table/data-table.vue';
-import ColorSquare from '../color-square/color-square.vue';
+import DataTable from 'components/data-table';
+import ColorSquare from 'components/color-square';
 
 export default {
 	data () {
@@ -64,7 +62,7 @@ export default {
 		}
 	},
 
-	props: ['appModel'],
+	props: ['objects'],
 
 	mounted () {
 
@@ -73,7 +71,7 @@ export default {
 	methods: {
 		onSelect (row) {
 			if (this.edited.name.length > 0) {
-				this.appModel.save();
+				this.objects.save();
 			}
 
 			this.edited = row;
@@ -86,19 +84,19 @@ export default {
 				color: ''
 			};
 
-			this.appModel.save();
+			this.objects.save();
 
 			this.editing = false;
 		},
 
 		add () {
-			this.appModel.book.addCategory('Nouvelle catégorie', '000000');
+			this.objects.book.addCategory('Nouvelle catégorie', '000000');
 
 			if (this.editing) {
-				this.appModel.save();
+				this.objects.save();
 			}
 
-			this.$refs.table.select(this.appModel.book.categories[this.appModel.book.categories.length - 1]);
+			this.$refs.table.select(this.objects.book.categories[this.objects.book.categories.length - 1]);
 		}
 	},
 

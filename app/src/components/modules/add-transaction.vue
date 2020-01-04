@@ -22,10 +22,10 @@
 
 			<input type="text" placeholder="> Titre" v-model="form.title" >
 
-			<select v-bind:class="{ placeholder: form.categoryKey === '_' }" v-model="form.categoryKey" :style="{ 'border-color': (form.categoryKey === '_' ? '' : '#' + appModel.book.findCategory(form.categoryKey).color) }">
+			<select v-bind:class="{ placeholder: form.categoryKey === '_' }" v-model="form.categoryKey" :style="{ 'border-color': (form.categoryKey === '_' ? '' : '#' + objects.book.findCategory(form.categoryKey).color) }">
 				<option value="_">> Catégorie</option>
 
-				<option v-for="category in appModel.book.categories" :value="category.key">
+				<option v-for="category in objects.book.categories" :value="category.key">
 					{{ category.name }}
 				</option>
 			</select>
@@ -38,12 +38,10 @@
 </template>
 
 <script>
-import Vue from 'vue';
+import Formatting from 'util/formatting';
+import Dates from 'util/dates';
 
-import Formatting from '../../formatting.js';
-import { formatDate, parseDate } from '../../date.js';
-
-import Switcher from '../switcher/switcher.vue';
+import Switcher from 'components/switcher';
 
 export default {
 	data () {
@@ -83,7 +81,7 @@ export default {
 		}
 	},
 
-	props: ['appModel'],
+	props: ['objects'],
 
 	mounted () {
 
@@ -94,7 +92,7 @@ export default {
 			this.error = '';
 
 			try {
-				parseDate(this.form.date);
+				Dates.parse(this.form.date);
 			} catch (e) {
 				this.error = 'Date invalide';
 			}
@@ -120,11 +118,11 @@ export default {
 			this.validate();
 
 			if (this.error.length === 0) {
-				var transaction = this.appModel.book.addTransaction(
+				var transaction = this.objects.book.addTransaction(
 					this.form.title, 
 					this.form.categoryKey, 
 					this.form.amount, 
-					parseDate(this.form.date), 
+					Dates.parse(this.form.date), 
 					this.form.direction
 				);
 
@@ -138,7 +136,7 @@ export default {
 
 				var t = this;
 
-				this.appModel.save().then(() => {
+				this.objects.save().then(() => {
 					t.message = 'Transaction ' + transaction.key + ' créée avec succès!';
 				}).catch((e) => {
 					t.error = 'Could not save';
@@ -150,7 +148,7 @@ export default {
 			var t = this;
 
 			var date = () => {
-				var lt = t.appModel.book.getLastTransaction();
+				var lt = t.objects.book.getLastTransaction();
 
 				if (t.dateMode === 'today' || lt == null) {
 					return new Date().getTime();
@@ -160,7 +158,7 @@ export default {
 			}
 
 			if (this.form.date.length === 0) {
-				this.form.date = formatDate(date(), 'yyyy-MM-dd');
+				this.form.date = Dates.format(date(), 'yyyy-MM-dd');
 				e.target.setSelectionRange(0, this.form.date.length);
 			}
 		},

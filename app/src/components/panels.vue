@@ -2,31 +2,29 @@
 	<div class="panels">
 		<div class="title">
 			<h1>SB</h1>
-			<img class="center-h" src="img/logo_transparent.png" alt="" />
+			<img src="img/logo_transparent.png" alt="" />
 		</div>
 
 		<div class="modules">
 			<div class="module">
-				<add-transaction :appModel="appModel"></add-transaction>
+				<add-transaction :objects="objects"></add-transaction>
 			</div>
 
 			<div class="module">
-				<transaction-list :appModel="appModel"></transaction-list>
+				<transaction-list :objects="objects"></transaction-list>
 			</div>
 
 			<div class="module">
-				<category-editor :appModel="appModel"></category-editor>
+				<category-editor :objects="objects"></category-editor>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script>
-import Vue from 'vue';
-
-import AddTransaction from './modules/add-transaction.vue';
-import TransactionList from './modules/transaction-list.vue';
-import CategoryEditor from './modules/category-editor.vue';
+import AddTransaction from 'components/modules/add-transaction';
+import TransactionList from 'components/modules/transaction-list';
+import CategoryEditor from 'components/modules/category-editor';
 
 export default {
 	data () {
@@ -35,7 +33,7 @@ export default {
 		}
 	},
 
-	props: ['appModel'],
+	props: ['objects'],
 
 	mounted () {
 
@@ -67,6 +65,7 @@ export default {
 
 .panels > .title img {
 	width: 20%;
+	margin: 0 auto 0 auto;
 }
 
 .panels .modules {

@@ -17,8 +17,6 @@
 </template>
 
 <script>
-import Vue from 'vue';
-
 export default {
 	data () {
 		return {
@@ -28,7 +26,7 @@ export default {
 		}
 	},
 
-	props: ['appModel'],
+	props: ['objects'],
 
 	mounted () {
 
@@ -43,10 +41,10 @@ export default {
 				var line = lines[i].split('\t');
 				var date = new Date(d[0], parseInt(d[1], 10) - 1, line[0]).getTime();
 
-				this.appModel.book.addTransaction(line[1], line[2], line[3].replace('$', '').replace(',', ''), date, this.direction);
+				this.objects.book.addTransaction(line[1], line[2], line[3].replace('$', '').replace(',', ''), date, this.direction);
 			}
 
-			this.appModel.save();
+			this.objects.save();
 		}
 	},
 

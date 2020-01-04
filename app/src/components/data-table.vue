@@ -27,11 +27,9 @@
 </template>
 
 <script>
-import Vue from 'vue';
+import ColorSquare from 'components/color-square';
 
-import ColorSquare from '../color-square/color-square.vue';
-
-import Formatting from '../../formatting.js';
+import Formatting from 'util/formatting';
 
 export default {
 	data () {
@@ -57,7 +55,7 @@ export default {
 			} else if (col.type === 'money') {
 				return Formatting.money(v);
 			} else if (col.type === 'category') {
-				return col.findCategory(v).name;
+				return col.getCategory(v).name;
 			} else {
 				return v;
 			}
@@ -84,7 +82,7 @@ export default {
 				} else if (col.type === 'money') {
 					return parseFloat(x) - parseFloat(y);
 				} else if (col.type === 'category') {
-					return col.findCategory(x).name.localeCompare(col.findCategory(y).name);
+					return col.getCategory(x).name.localeCompare(col.getCategory(y).name);
 				} else {
 					return 0;
 				}
@@ -108,7 +106,7 @@ export default {
 			if (col.type === 'color') {
 				return value;
 			} else if (col.type === 'category') {
-				return col.findCategory(value).color;
+				return col.getCategory(value).color;
 			}
 		},
 

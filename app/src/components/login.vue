@@ -1,18 +1,18 @@
 <template>
-	<div class="login center-page" v-if="triedToken">
+	<div class="login" v-if="triedToken">
 		<div class="logo">
 			<h1>SB</h1>
-			<img class="center-h" src="img/logo_transparent.png" alt="" />
+			<img src="img/logo_transparent.png" alt="" />
 		</div>
 
 		<div class="form">
-			<div class="error center-h" v-if="error.length > 0">
+			<div class="error" v-if="error.length > 0">
 				{{error}}
 			</div>
 
 			<div class="fields">
-				<input type="text" class="center-h" placeholder="Nom d'utilisateur" v-model="username" autocomplete="off" />
-				<input type="password" class="center-h" placeholder="Mot de passe" v-model="password" autocomplete="new-password" v-on:keyup.enter="doLogin" />
+				<input type="text" placeholder="Nom d'utilisateur" v-model="username" autocomplete="off" />
+				<input type="password" placeholder="Mot de passe" v-model="password" autocomplete="new-password" v-on:keyup.enter="doLogin" />
 			</div>
 
 			<button type="button" class="center-h" v-on:click="doLogin">Connexion</button>
@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import Objects from '../api/objects.js';
+import Api from 'api/api';
 
 export default {
 	data () {
@@ -39,13 +39,11 @@ export default {
 		this.$nextTick(() => {
 			console.log('Login by token');
 
-			Objects.loginByToken().then(() => {
+			Api.loginByToken().then(() => {
 				console.log('Logged in');
 
 				t.$emit('loggedIn');
 			}).catch((e) => {
-				console.log('Catch');
-
 				t.triedToken = true;
 			});
 		});
@@ -55,7 +53,7 @@ export default {
 		doLogin () {
 			var t = this;
 
-			Objects.login(this.username, this.password).then(() => {
+			Api.login(this.username, this.password).then(() => {
 				t.$emit('loggedIn');
 			}).catch((e) => {
 				t.error = 'Erreur de connexion';
@@ -74,16 +72,18 @@ export default {
 .login {
 	width: 30%;
 	padding-bottom: 30px;
+	margin: 80px auto 0 auto;
+	padding-top: 20px;
 }
 
 .login .logo {
 	height: 200px;
 	width: 100%;
-	margin-top: 20px;
 }
 
 .login .logo img {
 	width: 75%;
+	margin: 0 auto 0 auto;
 }
 
 .login h1 {
@@ -97,11 +97,12 @@ export default {
 
 .login input {
 	width: 80%;
-	margin-bottom: 40px;
+	margin: 0 auto 40px auto;
 }
 
 .login button {
 	width: 80%;
+	margin: 0 auto 0 auto;
 }
 
 .login .error {
@@ -109,7 +110,7 @@ export default {
 	padding: 10px;
 	background-color: #fff;
 	color: #d66;
-	margin-bottom: 30px;
+	margin: 0 auto 30px auto;;
 	width: 90%;
 	font-weight: bold;
 }

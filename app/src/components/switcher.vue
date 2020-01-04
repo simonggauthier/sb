@@ -15,9 +15,7 @@
 </template>
 
 <script>
-import Vue from 'vue';
-
-import Formatting from '../../formatting.js';
+import Formatting from 'util/formatting';
 
 export default {
 	data () {
@@ -47,8 +45,6 @@ export default {
 				index = 0;
 			}
 
-			console.log(this.list);
-
 			this.$emit('input', keys[index]);
 		}
 	},
@@ -60,6 +56,10 @@ export default {
 </script>
 
 <style>
+
+.switcher {
+	margin-bottom: 10px;
+}
 
 .switcher > div {
 	float: left;

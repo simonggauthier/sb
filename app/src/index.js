@@ -1,6 +1,6 @@
 import Vue from 'Vue';
 
-import App from '@components/app.vue';
+import App from 'components/app';
 
 const app = new Vue({
 	el: '#app',
