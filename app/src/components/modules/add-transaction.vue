@@ -18,11 +18,11 @@
 			<label>Direction</label>
 			<switcher :list="transactionDirectionSwitcherList" v-model="form.direction"></switcher>
 
-			<input type="text" placeholder="> Date" v-model="form.date" @focus="onDateFocus" />
+			<input type="text" placeholder="> Date" v-model="form.date" @focus="onDateFocus" aria-label="Date" />
 
-			<input type="text" placeholder="> Titre" v-model="form.title" >
+			<input type="text" placeholder="> Titre" v-model="form.title" aria-label="Titre" >
 
-			<select v-bind:class="{ placeholder: form.categoryKey === '_' }" v-model="form.categoryKey" :style="{ 'border-color': (form.categoryKey === '_' ? '' : '#' + objects.book.findCategory(form.categoryKey).color) }">
+			<select v-bind:class="{ placeholder: form.categoryKey === '_' }" v-model="form.categoryKey" :style="{ 'border-color': (form.categoryKey === '_' ? '' : '#' + objects.book.findCategory(form.categoryKey).color) }" aria-label="Catégorie">
 				<option value="_">> Catégorie</option>
 
 				<option v-for="category in objects.book.categories" :value="category.key">
@@ -30,7 +30,7 @@
 				</option>
 			</select>
 
-			<input type="number" min="0.01" step="0.01" placeholder="> Montant" v-model="form.amount" @change="onAmountChange" >
+			<input type="number" min="0.01" step="0.01" placeholder="> Montant" v-model="form.amount" @change="onAmountChange" aria-label="Montant" >
 
 			<button class="icon" type="button" @click="onAdd">Ajouter</button>
 		</div>
@@ -40,6 +40,7 @@
 <script>
 import Formatting from 'util/formatting';
 import Dates from 'util/dates';
+import { BookReport } from 'api/model/book';
 
 import Switcher from 'components/switcher';
 
@@ -148,12 +149,12 @@ export default {
 			var t = this;
 
 			var date = () => {
-				var lt = t.objects.book.getLastTransaction();
+				var transaction = new BookReport(t.objects.book).getMostRecentTransaction();
 
-				if (t.dateMode === 'today' || lt == null) {
+				if (t.dateMode === 'today' || transaction == null) {
 					return new Date().getTime();
 				} else {
-					return lt.date;
+					return transaction.date;
 				}
 			}
 
@@ -162,7 +163,7 @@ export default {
 				e.target.setSelectionRange(0, this.form.date.length);
 			}
 		},
-
+		
 		onAmountChange () {
 			this.form.amount = Formatting.moneyDigits(this.form.amount);
 		},

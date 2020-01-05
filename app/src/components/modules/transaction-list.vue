@@ -16,7 +16,7 @@
 
 		<div class="report">
 			<label>Économies</label>
-			<input type="text" disabled="disabled" :value="monthEconomies" />
+			<input type="text" disabled="disabled" :value="monthEconomies" aria-label="Économies" />
 		</div>
 
 		<div class="transactions">
