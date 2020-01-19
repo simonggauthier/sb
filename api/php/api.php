@@ -149,13 +149,6 @@
 				throw new ApiError(new GenericError('Invalid create category request'), 400);
 			}
 
-			$dupCheck = $this->database->findCategory($_POST['name']);
-
-			if ($dupCheck)
-			{
-				throw new ApiError(new GenericError('Category ' . $_POST['name'] . ' already exists'), 400);
-			}
-
 			$book = $this->database->getBook($_POST['bookId']);
 
 			if (!$book)
@@ -166,6 +159,13 @@
 			if ($book->ownerId !== $_SESSION['userId'])
 			{
 				throw new ApiError(new GenericError('Invalid create category request'), 400);
+			}
+
+			$dupCheck = $this->database->findCategory($_POST['name'], $_POST['bookId']);
+
+			if ($dupCheck)
+			{
+				throw new ApiError(new GenericError('Category ' . $_POST['name'] . ' already exists'), 400);
 			}
 
 			$category = new Category(0, $_POST['bookId'], $_POST['name'], $_POST['color']);

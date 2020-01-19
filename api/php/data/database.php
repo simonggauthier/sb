@@ -170,9 +170,9 @@
 			return Category::fromResultSet($rs);
 		}
 
-		public function findCategory ($name)
+		public function findCategory ($name, $bookId)
 		{
-			$rs = $this->get('SELECT * FROM categories WHERE name LIKE ?', [$name]);
+			$rs = $this->get('SELECT * FROM categories WHERE name LIKE ? AND bookId = ?', [$name, $bookId]);
 
 			if (!$rs)
 			{
