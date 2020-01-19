@@ -3,8 +3,8 @@ import Dates from 'util/dates';
 
 var Descriptions = {
 	TransactionCategory: {
-		key: {
-			type: 'string'
+		id: {
+			type: 'int'
 		},
 
 		name: {
@@ -17,12 +17,16 @@ var Descriptions = {
 	},
 
 	Transaction: {
+		id: {
+			type: 'int'
+		},
+
 		title: {
 			type: 'string'
 		},
 
-		category: {
-			type: 'TransactionCategory'
+		categoryId: {
+			type: 'int'
 		},
 
 		amount: {
@@ -39,19 +43,14 @@ var Descriptions = {
 	}
 };
 
-const CURRENT_VERSION = 6;
-
 class Book {
 	constructor () {
-		this.version = CURRENT_VERSION;
-
 		this.categories = [];
 		this.transactions = [];
 	}
 
 	addTransaction (title, category, amount, date, direction) {
 		this.transactions.push({
-			key: uuid(),
 			title,
 			category,
 			amount,
@@ -96,20 +95,8 @@ class Book {
 
 	static fromJson (json) {
 		var ret = Object.assign(new Book, json);
-		var converted = false;
 
-		if (ret.version != CURRENT_VERSION) {
-			console.log('Current book version != json.version');
-
-			console.log(json.version);
-
-			ret = null;
-		}
-
-		return {
-			converted,
-			book: ret
-		};
+		return ret;
 	}
 }
 

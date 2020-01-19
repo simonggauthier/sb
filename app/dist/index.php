@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="fr">
 	<head>
-		<link rel="icon" href="favicon.ico" type="image/x-icon" />
-		<link rel="apple-touch-icon" sizes="180x180" href="img/leaf180.png">
+		<link rel="icon" type="image/png" href="img/leaf.png" />
+		<link rel="manifest" href="manifest.json" />
 
 		<meta name="description" content="Simon's budget" />
 
@@ -37,6 +37,6 @@
 			<app></app>
 		</div>
 		
-		<script src="bundle.js"></script>
+		<script src="bundle.js?version=4"></script>
 	</body>
 </html>

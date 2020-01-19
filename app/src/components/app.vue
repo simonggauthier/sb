@@ -74,6 +74,10 @@ input, button, textarea, select {
 	margin-bottom: 10px;
 }
 
+input, textarea, select {
+	border-left: solid 8px #B9D4DB;
+}
+
 button {
 	margin: 10px 0;
 }

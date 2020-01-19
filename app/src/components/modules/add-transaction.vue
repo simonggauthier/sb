@@ -22,7 +22,7 @@
 
 			<input type="text" placeholder="> Titre" v-model="form.title" aria-label="Titre" >
 
-			<select v-bind:class="{ placeholder: form.categoryKey === '_' }" v-model="form.categoryKey" :style="{ 'border-color': (form.categoryKey === '_' ? '' : '#' + objects.book.findCategory(form.categoryKey).color) }" aria-label="Catégorie">
+			<select v-bind:class="{ placeholder: form.categoryKey === '_' }" v-model="form.categoryKey" :style="{ 'border-color': (form.categoryKey === '_' ? '' : '#' + objects.book.getCategory(form.categoryKey).color) }" aria-label="Catégorie">
 				<option value="_">> Catégorie</option>
 
 				<option v-for="category in objects.book.categories" :value="category.key">
