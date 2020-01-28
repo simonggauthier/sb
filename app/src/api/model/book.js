@@ -12,7 +12,7 @@ var Descriptions = {
 		},
 
 		color: {
-			type: 'color'
+			type: 'color { hex }'
 		}
 	},
 
@@ -38,21 +38,22 @@ var Descriptions = {
 		},
 
 		direction: {
-			type: 'TransactionDirection { input, output }'
+			type: 'TransactionDirection { ["input", "output"] }'
 		}
 	}
 };
 
 class Book {
 	constructor () {
+		this.id = null;
 		this.categories = [];
 		this.transactions = [];
 	}
 
-	addTransaction (title, category, amount, date, direction) {
+	addTransaction (title, categoryId, amount, date, direction) {
 		this.transactions.push({
 			title,
-			category,
+			categoryId,
 			amount,
 			date,
 			direction
@@ -61,8 +62,8 @@ class Book {
 		return this.transactions[this.transactions.length - 1];
 	}
 
-	removeTransaction (key) {
-		var transaction = this.getTransaction(key);
+	removeTransaction (id) {
+		var transaction = this.getTransaction(id);
 
 		if (transaction === null) {
 			return;
@@ -71,15 +72,14 @@ class Book {
 		this.transactions.splice(this.transactions.indexOf(transaction), 1);
 	}
 
-	getTransaction (key) {
+	getTransaction (id) {
 		return this.transactions.find((t) => {
-			return t.key === key;
+			return t.id === id;
 		});
 	}
 
 	addCategory (name, color) {
 		this.categories.push({
-			key: uuid(),
 			name,
 			color
 		});
@@ -87,9 +87,9 @@ class Book {
 		return this.categories[this.categories.length - 1];
 	}
 
-	getCategory (key) {
+	getCategory (id) {
 		return this.categories.find((c) => {
-			return c.key === key;
+			return c.id === id;
 		});
 	}
 

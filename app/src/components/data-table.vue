@@ -15,7 +15,7 @@
 				<tbody class="scroll">
 					<tr v-for="(row, i) in sort()" v-if="tableModel.filter && tableModel.filter(row)" v-on:click="onRowClick(row)" v-bind:class="{ selected: selectedRow === row }">
 						<td v-for="(col, key) in tableModel.columns" v-bind:class="{ money: col.type === 'money' }" v-bind:style="{ width: col.width }">
-							<color-square v-if="col.type === 'color' || col.type === 'category'" :edit="false" :color="findSquareColor(col, row[key])"></color-square>
+							<color-square v-if="col.type === 'color' || col.type === 'category'" :edit="false" :color="findSquareColor(col, row[key], row, key)"></color-square>
 
 							{{ format(row, col, key) }}
 						</td>
@@ -102,7 +102,7 @@ export default {
 			this.tableModel.sort.key = key;
 		},
 
-		findSquareColor (col, value) {
+		findSquareColor (col, value, row, key) {
 			if (col.type === 'color') {
 				return value;
 			} else if (col.type === 'category') {
@@ -121,6 +121,10 @@ export default {
 					this.$emit('selected', row);
 				}
 			}
+		},
+
+		unselect () {
+			this.selectedRow = null;
 		},
 
 		onRowClick (row) {

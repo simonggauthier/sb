@@ -1,5 +1,5 @@
 <template>
-	<div class="color-square" v-bind:class="{ 'edit': edit }" v-bind:style="{ 'background-color': '#' + calcColor() }"></div>
+	<div class="color-square" v-bind:class="{ 'edit': edit }" v-bind:style="{ 'background-color': calcColor() }"></div>
 </template>
 
 <script>

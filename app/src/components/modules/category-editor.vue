@@ -3,39 +3,24 @@
 		<h2>Catégories</h2>
 		
 		<div class="actions">
-			<span class="add" @click="add"><i class="fas fa-plus-square"></i></span>
+			<span class="add" @click="onAdd"><i class="fas fa-plus-square"></i></span>
 		</div>
 
 		<div class="categories">
-			<data-table ref="table" :tableModel="table" :tableData="objects.book.categories" :selectable="true" @selected="onSelect" @unselected="onUnselect"></data-table>
-		</div>
-
-		<div class="form" v-if="editing">
-			<h3>Modifier</h3>
-
-			<input type="text" v-model="edited.name" placeholder="Nom" />
-
-			<div class="color-edit">
-				<input type="text" class="color" v-model="edited.color" placeholder="Couleur" />
-			</div>
+			<data-table ref="table" :tableModel="table" :tableData="objects.book.categories" :selectable="true" @selected="onSelect"></data-table>
 		</div>
 	</div>
 </template>
 
 <script>
+import Api from 'api/api';
+
 import DataTable from 'components/data-table';
 import ColorSquare from 'components/color-square';
 
 export default {
 	data () {
 		return {
-			edited: {
-				name: '',
-				color: ''
-			},
-
-			editing: false,
-
 			table: {
 				sort: {
 					key: 'name',
@@ -59,6 +44,18 @@ export default {
 					return category;
 				}
 			},
+
+			dialogModel: {
+				name: {
+					label: 'Nom',
+					type: 'string'
+				},
+
+				color: {
+					label: 'Couleur',
+					type: 'color'
+				}				
+			}
 		}
 	},
 
@@ -69,34 +66,61 @@ export default {
 	},
 
 	methods: {
-		onSelect (row) {
-			if (this.edited.name.length > 0) {
-				this.objects.save();
-			}
-
-			this.edited = row;
-			this.editing = true;
+		updateCategory (category) {
+			Api.saveCategory(category);
 		},
 
-		onUnselect (row) {
-			this.edited = {
-				name: '',
-				color: ''
-			};
-
-			this.objects.save();
-
-			this.editing = false;
+		addCategory (category) {
+			Api.saveCategory(category, this.objects.book).then((data) => {
+				category.id = data.id;
+			});
 		},
 
-		add () {
-			this.objects.book.addCategory('Nouvelle catégorie', '000000');
+		deleteCategory (category) {
+			Api.deleteCategory(category);
+		},
 
-			if (this.editing) {
-				this.objects.save();
+		createModalMission (row) {
+			var mode = (row.id || row.id === 0) ? 'update' : 'add';
+
+			return {
+				title: mode === 'update' ? 'Modifier une catégorie' : 'Ajouter une catégorie',
+				model: this.dialogModel,
+				target: row,
+				okLabel: mode === 'update' ? 'Modifier' : 'Ajouter',
+				canClose: true,
+				canDelete: mode === 'update',
+
+				onClose: (action) => {
+					this.$refs.table.unselect();
+
+					if (action === 'ok') {
+						if (mode === 'add') {
+							this.addCategory(row);
+						} else {
+							this.updateCategory(row);
+						}						
+					} else if (action === 'close') {
+						if (mode === 'add') {
+							this.objects.book.categories.splice(this.objects.book.categories.length - 1, 1);
+						}
+					} else if (action === 'delete') {
+						this.objects.book.categories.splice(this.objects.book.categories.indexOf(row), 1);
+
+						this.deleteCategory(row);
+					}
+				}
 			}
+		},
+
+		onAdd () {
+			this.objects.book.addCategory('Nouvelle catégorie', '#ff00ff');
 
 			this.$refs.table.select(this.objects.book.categories[this.objects.book.categories.length - 1]);
+		},
+
+		onSelect (row) {
+			this.$emit('requestModal', this.createModalMission(row));
 		}
 	},
 
@@ -104,7 +128,7 @@ export default {
 		DataTable,
 		ColorSquare
 	}
-}
+};
 </script>
 
 <style>
@@ -122,7 +146,7 @@ export default {
 	}
 
 	.category-editor .add {
-		font-size: 1em;
+		font-size: 1.5em;
 		cursor: pointer;
 	}
 

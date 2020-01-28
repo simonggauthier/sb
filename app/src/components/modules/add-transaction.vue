@@ -20,12 +20,12 @@
 
 			<input type="text" placeholder="> Date" v-model="form.date" @focus="onDateFocus" aria-label="Date" />
 
-			<input type="text" placeholder="> Titre" v-model="form.title" aria-label="Titre" >
+			<input type="text" placeholder="> Titre" v-model="form.title" aria-label="Titre">
 
-			<select v-bind:class="{ placeholder: form.categoryKey === '_' }" v-model="form.categoryKey" :style="{ 'border-color': (form.categoryKey === '_' ? '' : '#' + objects.book.getCategory(form.categoryKey).color) }" aria-label="Catégorie">
+			<select v-bind:class="{ placeholder: form.categoryId === '_' }" v-model="form.categoryId" :style="{ 'border-color': (form.categoryId === '_' ? '' : objects.book.getCategory(form.categoryId).color) }" aria-label="Catégorie">
 				<option value="_">> Catégorie</option>
 
-				<option v-for="category in objects.book.categories" :value="category.key">
+				<option v-for="category in objects.book.categories" :value="category.id">
 					{{ category.name }}
 				</option>
 			</select>
@@ -38,6 +38,7 @@
 </template>
 
 <script>
+import Api from 'api/api';
 import Formatting from 'util/formatting';
 import Dates from 'util/dates';
 import { BookReport } from 'api/model/book';
@@ -50,7 +51,7 @@ export default {
 			form: {
 				date: '',
 				title: '',
-				categoryKey: '_',
+				categoryId: '_',
 				amount: '',
 				direction: 'output'
 			},
@@ -102,7 +103,7 @@ export default {
 				this.error = 'Le titre est obligatoire'
 			}
 
-			if (this.form.categoryKey === '_') {
+			if (this.form.categoryId === '_') {
 				this.error = 'La catégorie est obligatoire';
 			}
 
@@ -121,7 +122,7 @@ export default {
 			if (this.error.length === 0) {
 				var transaction = this.objects.book.addTransaction(
 					this.form.title, 
-					this.form.categoryKey, 
+					this.form.categoryId, 
 					this.form.amount, 
 					Dates.parse(this.form.date), 
 					this.form.direction
@@ -130,17 +131,13 @@ export default {
 				this.form = {
 					date: '',
 					title: '',
-					categoryKey: '_',
+					categoryId: '_',
 					amount: '',
 					direction: 'output'				
 				};
 
-				var t = this;
-
-				this.objects.save().then(() => {
-					t.message = 'Transaction ' + transaction.key + ' créée avec succès!';
-				}).catch((e) => {
-					t.error = 'Could not save';
+				Api.saveTransaction(transaction, this.objects.book).then((data) => {
+					transaction.id = data.id;
 				});
 			}
 		},

@@ -95,7 +95,7 @@
 
 			$_SESSION['userId'] = $token->ownerId;
 
-			$this->ok();
+			$this->ok(['token' => $token]);
 		}
 
 		/**
@@ -113,25 +113,34 @@
 				throw new ApiError(new GenericError('Not logged in'), 400);
 			}
 
-			$book = [];
-			$book['categories'] = [];
-			$book['transactions'] = [];
+			$book = $this->database->findBook($_GET['name']);
 
-			$categories = $this->database->getAllCategories();
+			if ($book->ownerId !== $_SESSION['userId'])
+			{
+				throw new ApiError(new GenericError('No book'), 400);
+			}
+
+			$ret = [];
+			$ret['categories'] = [];
+			$ret['transactions'] = [];
+
+			$categories = $this->database->getAllCategories($book->id);
 
 			foreach ($categories as $category) 
 			{
-				array_push($book['categories'], $category->toMap());
+				array_push($ret['categories'], $category->toMap());
 			}
 
-			$transactions = $this->database->getAllTransactions();
+			$transactions = $this->database->getAllTransactions($book->id);
 
 			foreach ($transactions as $transaction) 
 			{
-				array_push($book['transactions'], $transaction->toMap());
+				array_push($ret['transactions'], $transaction->toMap());
 			}
 
-			$this->ok($book);
+			$ret['id'] = $book->id;
+
+			$this->ok($ret);
 		}
 
 		/**
@@ -213,6 +222,52 @@
 			$this->database->updateCategory($category);
 
 			$this->ok($category->toMap());
+		}
+
+		/**
+		* Update category
+		*/
+		public function deleteCategory ()
+		{
+			if (!isset($_SESSION['userId']))
+			{
+				throw new ApiError(new GenericError('Not logged in'), 400);
+			}
+
+			if (!isset($_POST['id']))
+			{
+				throw new ApiError(new GenericError('Invalid delete category request'), 400);
+			}
+
+			$category = $this->database->getCategory($_POST['id']);
+
+			if (!$category)
+			{
+				throw new ApiError(new GenericError('Invalid category id'), 400);
+			}
+
+			$book = $this->database->getBook($category->bookId);
+
+			if (!$book)
+			{
+				throw new ApiError(new GenericError('Invalid update category request'), 400);
+			}
+
+			if ($book->ownerId !== $_SESSION['userId'])
+			{
+				throw new ApiError(new GenericError('Invalid category id'), 400);
+			}
+
+			$transactions = $this->database->getTransactionsByCategory($category->id);
+
+			if (count($transactions) > 0) 
+			{
+				throw new ApiError(new GenericError('This category is linked to transactions'), 400);
+			}
+
+			$this->database->deleteCategory($category->id);
+
+			$this->ok(['action' => 'deleted']);
 		}
 
 		/**
@@ -329,7 +384,7 @@
 
 			$this->database->deleteTransaction($_POST['id']);
 
-			$this->ok();
+			$this->ok(['action' => 'deleted']);
 		}	
 
 		/**
@@ -384,15 +439,13 @@
 
 				$catCache[$cat['key']] = $category->id;
 
-				array_push($actions, 'Created category ' . $category->name . ', ' . $category->id);
+				array_push($actions, 'Created category ' . $category->name . ', ' . $category->id . ' [' . $cat['key'] . ']');
 			}
 
 			array_push($actions, 'Creating transactions');
 
 			foreach ($obj['transactions'] as $tra)
 			{
-				$catName = $tra['category'];
-
 				$categoryId = $catCache[$tra['category']];
 
 				if (!$categoryId)
@@ -404,7 +457,7 @@
 
 				$amount = str_replace('.', '', '' . $tra['amount']);
 
-				$transaction = new Transaction(0, $book->id, $tra['direction'], $tra['title'], $category->id, $amount, $this->database->dateFromEpoch($tra['date']));
+				$transaction = new Transaction(0, $book->id, $tra['direction'], $tra['title'], $categoryId, $amount, $this->database->dateFromEpoch($tra['date']));
 				$this->database->createTransaction($transaction);
 			}
 
@@ -480,7 +533,14 @@
 			$routes['POST']['category'] = function () {
 				if (isset($_POST['id']))
 				{
-					$this->api->updateCategory();
+					if (isset($_POST['delete']))
+					{
+						$this->api->deleteCategory();
+					}
+					else
+					{
+						$this->api->updateCategory();
+					}
 				}
 				else
 				{
@@ -510,9 +570,9 @@
 				$this->api->getBook();
 			};
 
-			/*$routes['GET']['convert'] = function () {
+			$routes['GET']['convert'] = function () {
 				$this->api->conversionScript();
-			};*/
+			};
 
 			// Logic
 			if (isset($routes[$this->method][$this->action])) {

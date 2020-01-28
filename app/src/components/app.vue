@@ -1,12 +1,12 @@
 <template>
 	<div class="content">
 		<login v-if="!isLoggedIn" v-on:loggedIn="onLoggedIn"></login>
-		<panels v-if="isLoggedIn && objects.loaded" :objects="objects"></panels>
+		<panels v-if="ready" :objects="objects"></panels>
 	</div>
 </template>
 
 <script>
-import ApplicationObjects from 'api/application-objects';
+import Objects from 'api/model/objects';
 
 import Login from 'components/login';
 import Panels from 'components/panels';
@@ -17,8 +17,9 @@ export default {
 
 		return {
 			isLoggedIn: false,
+			ready: false,
 
-			objects: new ApplicationObjects()
+			objects: new Objects()
 		}
 	},
 
@@ -34,6 +35,8 @@ export default {
 
 			this.objects.load().then(() => {
 				console.log('Application objects loaded');
+
+				t.ready = true;
 			});
 		}
 	},
@@ -72,6 +75,14 @@ input, button, textarea, select {
 	font-size: 1em;
 	padding: 6px;
 	margin-bottom: 10px;
+}
+
+button {
+	font-family: 'Roboto', sans-serif;
+}
+
+input[type='color'] {
+	box-sizing: content-box;
 }
 
 input, textarea, select {

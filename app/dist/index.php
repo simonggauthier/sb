@@ -37,6 +37,6 @@
 			<app></app>
 		</div>
 		
-		<script src="bundle.js?version=4"></script>
+		<script src="bundle.js?version=<?php time() ?>"></script>
 	</body>
 </html>

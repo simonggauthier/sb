@@ -20,14 +20,13 @@
 		</div>
 
 		<div class="transactions">
-			<data-table :tableModel="table" :tableData="objects.book.transactions" :selectable="true" @selected="onTransactionSelected" @unselected="onTransactionUnselected"></data-table>
+			<data-table ref="table" :tableModel="table" :tableData="objects.book.transactions" :selectable="true" @selected="onTransactionSelected"></data-table>
 		</div>
-
-		<button type="button" v-if="selectedTransaction != null" @click="onDeleteTransaction">Supprimer</button>
 	</div>
 </template>
 
 <script>
+import Api from 'api/api';
 import Formatting from 'util/formatting';
 import Dates from 'util/dates';
 import { BookReport } from 'api/model/book';
@@ -57,13 +56,13 @@ export default {
 						type: 'string',
 						width: '25%'
 					},
-					'category': {
+					'categoryId': {
 						title: 'Catégorie',
 						type: 'category',
 						width: '30%',
 						
-						getCategory: (key) => {
-							return t.objects.book.getCategory(key);
+						getCategory: (id) => {
+							return t.objects.book.getCategory(id);
 						}
 					},
 					'amount': {
@@ -92,7 +91,43 @@ export default {
 			transactionDirection: 'output',
 			month: '',
 
-			selectedTransaction: null
+			dialogModel: {
+				direction: {
+					label: 'Direction',
+					type: 'switcher',
+					list: {
+						'input': {
+							name: 'Entrée'
+						},
+
+						'output': {
+							name: 'Sortie'
+						}
+					}
+				},
+
+				_fdate: {
+					label: 'Date',
+					type: 'date'
+				},
+
+				title: {
+					label: 'Titre',
+					type: 'string'
+				},
+
+				categoryId: {
+					label: 'Catégorie',
+					type: 'list',
+					getList: () => { return t.objects.book.categories; },
+					render: (entry) => { return entry.name; }
+				},
+
+				amount: {
+					label: 'Montant',
+					type: 'money'
+				}
+			}
 		}
 	},
 
@@ -104,10 +139,6 @@ export default {
 		if (transaction) {
 			this.month = Dates.getMonth(transaction.date);
 		}
-	},
-
-	updated () {
-
 	},
 
 	methods: {
@@ -123,19 +154,43 @@ export default {
 			});
 		},
 
+		updateTransaction (transaction) {
+			transaction.date = Dates.parse(transaction._fdate);
+
+			Api.saveTransaction(transaction, this.objects.book);
+		},
+
+		deleteTransaction (transaction) {
+			Api.deleteTransaction(transaction);
+		},
+
+		createModalMission (transaction) {
+			transaction._fdate = Formatting.date(transaction.date);
+
+			return {
+				title: 'Modifier une transaction',
+				model: this.dialogModel,
+				target: transaction,
+				okLabel: 'Modifier',
+				canClose: true,
+				canDelete: true,
+
+				onClose: (action) => {
+					this.$refs.table.unselect();
+
+					if (action === 'ok') {
+						this.updateTransaction(transaction);
+					} else if (action === 'delete') {
+						this.objects.book.transactions.splice(this.objects.book.transactions.indexOf(transaction), 1);
+
+						this.deleteTransaction(transaction);
+					}
+				}
+			}
+		},
+
 		onTransactionSelected (transaction) {
-			this.selectedTransaction = transaction;
-		},
-
-		onTransactionUnselected () {
-			this.selectedTransaction = null;
-		},
-
-		onDeleteTransaction () {
-			this.objects.book.removeTransaction(this.selectedTransaction.key);
-			this.selectedTransaction = null;
-
-			this.objects.save();
+			this.$emit('requestModal', this.createModalMission(transaction));
 		}
 	},
 

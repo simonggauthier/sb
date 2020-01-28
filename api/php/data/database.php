@@ -122,6 +122,18 @@
 			return Book::fromResultSet($rs);
 		}
 
+		public function findBook ($name)
+		{
+			$rs = $this->get('SELECT * FROM books WHERE name like ?', [$name]);
+
+			if (!$rs)
+			{
+				return null;
+			}
+
+			return Book::fromResultSet($rs);
+		}
+
 		public function getBookByOwnerId ($ownerId)
 		{
 			$rs = $this->get('SELECT * FROM books WHERE owner_id = ?', [$ownerId]);
@@ -145,9 +157,9 @@
 		}
 
 		/* Category */
-		public function getAllCategories ()
+		public function getAllCategories ($bookId)
 		{
-			$rs = $this->getList('SELECT * FROM categories', []);
+			$rs = $this->getList('SELECT * FROM categories where book_id = ?', [$bookId]);
 			$ret = [];
 
 			while ($row = $rs->fetch())
@@ -172,7 +184,7 @@
 
 		public function findCategory ($name, $bookId)
 		{
-			$rs = $this->get('SELECT * FROM categories WHERE name LIKE ? AND bookId = ?', [$name, $bookId]);
+			$rs = $this->get('SELECT * FROM categories WHERE name LIKE ? AND book_id = ?', [$name, $bookId]);
 
 			if (!$rs)
 			{
@@ -198,10 +210,16 @@
 			$stmt->execute($category->toUpdateArray());
 		}
 
-		/* Transaction */
-		public function getAllTransactions ()
+		public function deleteCategory ($id)
 		{
-			$rs = $this->getList('SELECT * FROM transactions', []);
+			$stmt = $this->createStatement('DELETE FROM categories WHERE id = ?');
+			$stmt->execute([$id]);
+		}
+
+		/* Transaction */
+		public function getAllTransactions ($bookId)
+		{
+			$rs = $this->getList('SELECT * FROM transactions where book_id = ?', [$bookId]);
 			$ret = [];
 
 			while ($row = $rs->fetch())
@@ -209,7 +227,7 @@
 				array_push($ret, Transaction::fromResultSet($row));
 			}
 
-			return $ret;			
+			return $ret;	
 		}
 
 		public function getTransaction ($id)
@@ -222,6 +240,19 @@
 			}
 
 			return Transaction::fromResultSet($rs);	
+		}
+
+		public function getTransactionsByCategory($categoryId)
+		{
+			$rs = $this->getList('SELECT * FROM transactions where category_id = ?', [$categoryId]);
+			$ret = [];
+
+			while ($row = $rs->fetch())
+			{
+				array_push($ret, Transaction::fromResultSet($row));
+			}
+
+			return $ret;
 		}
 
 		public function createTransaction ($transaction)

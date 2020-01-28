@@ -1,5 +1,7 @@
 <template>
 	<div class="panels">
+		<modal :mission="modal.mission" @close="onModalClose"></modal>
+
 		<div class="title">
 			<h1>SB</h1>
 			<img src="img/logo_transparent.png" alt="" />
@@ -11,17 +13,18 @@
 			</div>
 
 			<div class="module">
-				<transaction-list :objects="objects"></transaction-list>
+				<transaction-list :objects="objects" @requestModal="onCategoryRequestModal"></transaction-list>
 			</div>
 
 			<div class="module">
-				<category-editor :objects="objects"></category-editor>
+				<category-editor :objects="objects" @requestModal="onCategoryRequestModal"></category-editor>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script>
+import Modal from 'components/modal';
 import AddTransaction from 'components/modules/add-transaction';
 import TransactionList from 'components/modules/transaction-list';
 import CategoryEditor from 'components/modules/category-editor';
@@ -29,7 +32,9 @@ import CategoryEditor from 'components/modules/category-editor';
 export default {
 	data () {
 		return {
-
+			modal: {
+				mission: null
+			}
 		}
 	},
 
@@ -40,10 +45,17 @@ export default {
 	},
 
 	methods: {
+		onModalClose () {
+			this.modal.mission = null;
+		},
 
+		onCategoryRequestModal (mission) {
+			this.modal.mission = mission;
+		}
 	},
 
 	components: {
+		Modal,
 		AddTransaction,
 		TransactionList,
 		CategoryEditor

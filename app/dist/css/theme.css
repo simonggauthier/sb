@@ -111,3 +111,13 @@ tr.selected {
 	border-color: #484;
 	background-color: #dfd;
 }
+
+.modal .dialog {
+	background-color: #fff;
+}
+
+.modal .title {
+	color: #E9765B;
+	border-bottom-color: #E9765B;
+	margin-bottom: 5px;
+}
