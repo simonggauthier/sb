@@ -5,4 +5,5 @@ create table books (id int auto_increment, name varchar (256), owner_id varchar 
 create table categories (id int auto_increment, book_id int, name varchar (256), color varchar (20), primary key (id));
 create table transactions (id int auto_increment, book_id int, direction varchar (10), title varchar (256), category_id int, amount int, creation_date datetime, primary key (id));
 
-update categories set color = CONCAT("#", color);
+-- New
+create table objectives (id int auto_increment, book_id int, category_id int, amount int, primary key (id));

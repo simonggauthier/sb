@@ -1,53 +1,12 @@
 import uuid from 'uuid/v4';
 import Dates from 'util/dates';
 
-var Descriptions = {
-	TransactionCategory: {
-		id: {
-			type: 'int'
-		},
-
-		name: {
-			type: 'string'
-		},
-
-		color: {
-			type: 'color { hex }'
-		}
-	},
-
-	Transaction: {
-		id: {
-			type: 'int'
-		},
-
-		title: {
-			type: 'string'
-		},
-
-		categoryId: {
-			type: 'int'
-		},
-
-		amount: {
-			type: 'Currency'
-		},
-
-		date: {
-			type: 'Date'
-		},
-
-		direction: {
-			type: 'TransactionDirection { ["input", "output"] }'
-		}
-	}
-};
-
 class Book {
 	constructor () {
 		this.id = null;
 		this.categories = [];
 		this.transactions = [];
+		this.objectives = [];
 	}
 
 	addTransaction (title, categoryId, amount, date, direction) {

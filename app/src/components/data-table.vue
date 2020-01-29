@@ -13,7 +13,7 @@
 				</thead>
 
 				<tbody class="scroll">
-					<tr v-for="(row, i) in sort()" v-if="tableModel.filter && tableModel.filter(row)" v-on:click="onRowClick(row)" v-bind:class="{ selected: selectedRow === row }">
+					<tr v-for="(row, i) in sort()" v-if="(tableModel.filter && tableModel.filter(row)) || !tableModel.filter" v-on:click="onRowClick(row)" v-bind:class="{ selected: selectedRow === row }">
 						<td v-for="(col, key) in tableModel.columns" v-bind:class="{ money: col.type === 'money' }" v-bind:style="{ width: col.width }">
 							<color-square v-if="col.type === 'color' || col.type === 'category'" :edit="false" :color="findSquareColor(col, row[key], row, key)"></color-square>
 
@@ -72,6 +72,11 @@ export default {
 
 				x = x[key];
 				y = y[key];
+
+				if (col === undefined) {
+					console.log('wtf');
+					console.log(JSON.stringify(this.tableModel.columns));
+				}
 
 				if (col.type === 'string' || col.type === 'color') {
 					return x.localeCompare(y);

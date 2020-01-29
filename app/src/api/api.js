@@ -125,6 +125,16 @@ class Api {
 		});
 	}
 
+	static saveObjective (objective) {
+		return new Promise((resolve, reject) => {
+			$.post(makeApiUrl('objective'), objective, (data) => {
+				resolve(data);
+			}).fail((e) => {
+				Api.tryReject(e, reject);
+			});
+		});		
+	}
+
 	static tryReject (error, reject) {
 		reject(error);
 	}

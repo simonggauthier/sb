@@ -37,6 +37,6 @@
 			<app></app>
 		</div>
 		
-		<script src="bundle.js?version=5"></script>
+		<script src="bundle.js?version=6"></script>
 	</body>
 </html>

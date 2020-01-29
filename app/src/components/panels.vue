@@ -13,11 +13,15 @@
 			</div>
 
 			<div class="module">
-				<transaction-list :objects="objects" @requestModal="onCategoryRequestModal"></transaction-list>
+				<transaction-list :objects="objects" @requestModal="onRequestModal"></transaction-list>
 			</div>
 
 			<div class="module">
-				<category-editor :objects="objects" @requestModal="onCategoryRequestModal"></category-editor>
+				<objectives :objects="objects" @requestModal="onRequestModal"></objectives>
+			</div>
+
+			<div class="module">
+				<category-editor :objects="objects" @requestModal="onRequestModal"></category-editor>
 			</div>
 		</div>
 	</div>
@@ -27,6 +31,7 @@
 import Modal from 'components/modal';
 import AddTransaction from 'components/modules/add-transaction';
 import TransactionList from 'components/modules/transaction-list';
+import Objectives from 'components/modules/objectives';
 import CategoryEditor from 'components/modules/category-editor';
 
 export default {
@@ -49,7 +54,7 @@ export default {
 			this.modal.mission = null;
 		},
 
-		onCategoryRequestModal (mission) {
+		onRequestModal (mission) {
 			this.modal.mission = mission;
 		}
 	},
@@ -58,6 +63,7 @@ export default {
 		Modal,
 		AddTransaction,
 		TransactionList,
+		Objectives,
 		CategoryEditor
 	}
 }

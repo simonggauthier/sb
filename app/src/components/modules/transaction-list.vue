@@ -142,18 +142,6 @@ export default {
 	},
 
 	methods: {
-		order () {
-			return this.objects.book.transactions.concat().sort((a, b) => {
-				if (this.sort.mode === 'date') {
-					if (this.sort.dir === 'acsending') {
-						return a.date - b.date;
-					} else {
-						return b.date - a.date;
-					}
-				}
-			});
-		},
-
 		updateTransaction (transaction) {
 			transaction.date = Dates.parse(transaction._fdate);
 
@@ -228,16 +216,12 @@ export default {
 
 <style>
 
-	.transaction-list .options {
-		margin-top: 20px;
-	}
+.transaction-list .options {
+	margin-top: 20px;
+}
 
-	.transaction-list .scroll {
-		max-height: 300px;
-	}
-
-	.transaction-list button {
-		width: 100%;
-	}
+.transaction-list .scroll {
+	max-height: 300px;
+}
 
 </style>
