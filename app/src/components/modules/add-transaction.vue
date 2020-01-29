@@ -41,7 +41,6 @@
 import Api from 'api/api';
 import Formatting from 'util/formatting';
 import Dates from 'util/dates';
-import { BookReport } from 'api/model/book';
 
 import Switcher from 'components/switcher';
 
@@ -146,7 +145,7 @@ export default {
 			var t = this;
 
 			var date = () => {
-				var transaction = new BookReport(t.objects.book).getMostRecentTransaction();
+				var transaction = t.objects.book.report.mostRecentTransaction;
 
 				if (t.dateMode === 'today' || transaction == null) {
 					return new Date().getTime();

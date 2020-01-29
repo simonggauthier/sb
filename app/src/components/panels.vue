@@ -13,6 +13,10 @@
 			</div>
 
 			<div class="module">
+				<reports :objects="objects"></reports>
+			</div>
+
+			<div class="module">
 				<transaction-list :objects="objects" @requestModal="onRequestModal"></transaction-list>
 			</div>
 
@@ -30,6 +34,7 @@
 <script>
 import Modal from 'components/modal';
 import AddTransaction from 'components/modules/add-transaction';
+import Reports from 'components/modules/reports';
 import TransactionList from 'components/modules/transaction-list';
 import Objectives from 'components/modules/objectives';
 import CategoryEditor from 'components/modules/category-editor';
@@ -62,6 +67,7 @@ export default {
 	components: {
 		Modal,
 		AddTransaction,
+		Reports,
 		TransactionList,
 		Objectives,
 		CategoryEditor

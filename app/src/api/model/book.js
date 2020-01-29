@@ -1,12 +1,119 @@
 import uuid from 'uuid/v4';
 import Dates from 'util/dates';
 
+var idc = (a, b) => {
+	if (typeof a === 'string') {
+		a = parseInt(a, 10);
+	}
+
+	if (typeof b === 'string') {
+		b = parseInt(b, 10);
+	}
+
+	return a === b;
+};
+
+class BookReport {
+	constructor () {
+		this.mostRecentTransaction = null;
+		this.allMonths = null;
+		this.transactionsForMonths = {};
+		this.savingsForMonths = {};
+		this.monthlyTotalPerCategory = {};
+	}
+}
+
 class Book {
 	constructor () {
 		this.id = null;
 		this.categories = [];
 		this.transactions = [];
 		this.objectives = [];
+		this.report = null;
+
+		this.sorters = {
+			transactionDate: (direction) => {
+				return (a, b) => {
+					var x = direction === 'ascending' ? a : b;
+					var y = direction === 'ascending' ? b : a;
+
+					return x.date - y.date;
+				};
+			}
+		};
+	}
+
+	buildReport () {
+		var report = new BookReport();
+
+		// mostRecentTransaction
+		if (this.transactions.length === 0) {
+			report.mostRecentTransaction = null;
+		} else {
+			report.mostRecentTransaction = this.transactions.sort(this.sorters.transactionDate('descending'))[0];
+		}
+
+		// allMonths
+		report.allMonths = this.transactions.sort(this.sorters.transactionDate('ascending')).map((transaction) => {
+			return Dates.getMonth(transaction.date);
+		}).filter((monthName, i, self) => {
+			return self.indexOf(monthName) === i;
+		});		
+
+		report.transactionsForMonths = {};
+		report.savingsForMonths = {};
+		report.monthlyTotalPerCategory = {};
+
+		report.allMonths.forEach((month) => {
+			// transactionsForMonths
+			report.transactionsForMonths[month] = this.transactions.filter((transaction) => {
+				return Dates.getMonth(transaction.date) === month;
+			});
+
+			// savingsForMonths
+			var s = report.transactionsForMonths[month].map((transaction) => {
+				var v = parseFloat(transaction.amount);
+			
+				if (transaction.direction === 'output') {
+					v = 0 - v;
+				}
+
+				return v;
+			});
+
+			if (s.length === 0) {
+				report.savingsForMonths[month] = 0;
+			} else {
+				report.savingsForMonths[month] = s.reduce((acc, curr) => acc + curr);
+			}
+
+			// monthlyTotalPerCategory
+			report.monthlyTotalPerCategory[month] = {};
+
+			this.categories.forEach((category) => {
+				var t = report.transactionsForMonths[month]
+				.filter((transaction) => idc(transaction.categoryId, category.id))
+				.map((transaction) => parseFloat(transaction.amount));
+
+				if (t.length > 0) {
+					t = t.reduce((acc, curr) => acc + curr);
+				} else {
+					t = 0;
+				}
+
+				report.monthlyTotalPerCategory[month][category.id] = t;
+			});
+		});
+
+		for (var month in report.monthlyTotalPerCategory) {
+			console.log(month);
+
+			for (var cat in report.monthlyTotalPerCategory[month]) {
+				console.log(this.getCategory(cat).name + ': ' + report.monthlyTotalPerCategory[month][cat]);
+			}
+		}
+
+		this.report = report;
 	}
 
 	addTransaction (title, categoryId, amount, date, direction) {
@@ -18,17 +125,15 @@ class Book {
 			direction
 		});
 
+		this.buildReport();
+
 		return this.transactions[this.transactions.length - 1];
 	}
 
-	removeTransaction (id) {
-		var transaction = this.getTransaction(id);
-
-		if (transaction === null) {
-			return;
-		}
-
+	removeTransaction (transaction) {
 		this.transactions.splice(this.transactions.indexOf(transaction), 1);
+
+		this.buildReport();
 	}
 
 	getTransaction (id) {
@@ -43,82 +148,30 @@ class Book {
 			color
 		});
 
+		this.buildReport();
+
 		return this.categories[this.categories.length - 1];
 	}
 
 	getCategory (id) {
-		return this.categories.find((c) => {
-			return c.id === id;
-		});
+		for (var i = 0; i < this.categories.length; i++) {
+			if (idc(this.categories[i].id, id)) {
+				return this.categories[i];
+			}
+		}
+
+		return null;
 	}
 
 	static fromJson (json) {
 		var ret = Object.assign(new Book, json);
 
+		ret.buildReport();
+
 		return ret;
 	}
 }
 
-class BookReport {
-	constructor (book) {
-		this.book = book;
-
-		this.sorters = {
-			date: (direction) => {
-				return (a, b) => {
-					var x = direction === 'ascending' ? a : b;
-					var y = direction === 'ascending' ? b : a;
-
-					return x.date - y.date;
-				};
-			}
-		};
-	}
-
-	getMostRecentTransaction () {
-		if (this.book.transactions.length === 0) {
-			return null;
-		}
-
-		return this.book.transactions.sort(this.sorters.date('descending'))[0];
-	}
-
-	getAllMonths () {
-		return this.book.transactions.sort(this.sorters.date('ascending')).map((transaction) => {
-			return Dates.getMonth(transaction.date);
-		}).filter((monthName, i, self) => {
-			return self.indexOf(monthName) === i;
-		});
-	}
-
-	getTransactionsForMonth (monthName) {
-		return this.book.transactions.filter((transaction) => {
-			return Dates.getMonth(transaction.date) === monthName;
-		});
-	}
-
-	getSavingsForMonth (monthName) {
-		var ret = this.getTransactionsForMonth(monthName).map((transaction) => {
-			var v = parseFloat(transaction.amount);
-			
-			if (transaction.direction === 'output') {
-				v = 0 - v;
-			}
-
-			return v;
-		});
-
-		if (ret.length === 0) {
-			return 0;
-		}
-
-		 return ret.reduce((acc, curr) => {
-			return acc + curr;
-		});
-	}
-}
-
 export { 
-	Book,
-	BookReport
+	Book
 };

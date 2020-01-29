@@ -1,0 +1,119 @@
+<template>
+	<div class="module reports">
+		<h2>Rapports</h2>
+
+		<div class="options">
+			<div class="option">
+				<label>Type</label>
+				<switcher :list="reports" v-model="reportType"></switcher>
+			</div>
+
+			<div class="report" :class="key" v-for="(report, key) in reports">
+				<data-table :tableModel="report.buildTableModel()" :tableData="report.buildTableData()" :selectable="false"></data-table>
+			</div>
+		</div>
+	</div>
+</template>
+
+<script>
+import Formatting from 'util/formatting';
+
+import DataTable from 'components/data-table';
+import Switcher from 'components/switcher';
+
+export default {
+	data () {
+		var t = this;
+
+		return {
+			reportType: 'category-average-month',
+
+			reports: {
+				'category-average-month': {
+					name: 'Moyenne mensuelle par catégorie',
+
+					buildTableModel () {
+						return {
+							sort: {
+								key: 'categoryId',
+								direction: 'ascending'
+							},
+
+							columns: {
+								'categoryId': {
+									title: 'Catégorie',
+									type: 'category',
+									width: '30%',
+									
+									getCategory: (id) => {
+										return t.objects.book.getCategory(id);
+									}
+								},
+								'amount': {
+									title: 'Montant',
+									type: 'money',
+									width: '20%'
+								}
+							}
+						};
+					},
+
+					buildTableData () {
+						var ret = [];
+
+						t.objects.book.categories.forEach((category) => {
+							ret.push({
+								categoryId: category.id,
+								amount: t.calculateTotalCategoryAverage(category.id)
+							});
+						});
+
+						return ret;
+					}
+				}
+			}
+		}
+	},
+
+	props: ['objects'],
+
+	mounted () {
+
+	},
+
+	methods: {
+		calculateTotalCategoryAverage (categoryId) {
+			var a = Object.keys(this.objects.book.report.monthlyTotalPerCategory)
+					.filter((month, i, a) => i < a.length - 1)
+					.map((month) => this.objects.book.report.monthlyTotalPerCategory[month][categoryId]);
+
+			if (a.length === 0) {
+				return 0;
+			}
+
+			return a.reduce((a, b) => a + b) / a.length;
+		}	
+	},
+
+	computed: {
+		
+	},
+
+	components: {
+		DataTable,
+		Switcher
+	}
+}
+</script>
+
+<style>
+
+.reports .options {
+	margin-top: 20px;
+}
+
+.reports .scroll {
+	max-height: 300px;
+}
+
+</style>

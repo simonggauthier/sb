@@ -16,7 +16,7 @@
 
 		<div class="report">
 			<label>Économies</label>
-			<input type="text" disabled="disabled" :value="monthEconomies" aria-label="Économies" />
+			<input type="text" disabled="disabled" :value="monthSavings" aria-label="Économies" />
 		</div>
 
 		<div class="transactions">
@@ -29,7 +29,6 @@
 import Api from 'api/api';
 import Formatting from 'util/formatting';
 import Dates from 'util/dates';
-import { BookReport } from 'api/model/book';
 
 import Switcher from 'components/switcher';
 import DataTable from 'components/data-table';
@@ -134,7 +133,7 @@ export default {
 	props: ['objects'],
 
 	mounted () {
-		var transaction = new BookReport(this.objects.book).getMostRecentTransaction();
+		var transaction = this.objects.book.report.mostRecentTransaction;
 
 		if (transaction) {
 			this.month = Dates.getMonth(transaction.date);
@@ -149,6 +148,8 @@ export default {
 		},
 
 		deleteTransaction (transaction) {
+			this.objects.book.removeTransaction(transaction);
+
 			Api.deleteTransaction(transaction);
 		},
 
@@ -169,8 +170,6 @@ export default {
 					if (action === 'ok') {
 						this.updateTransaction(transaction);
 					} else if (action === 'delete') {
-						this.objects.book.transactions.splice(this.objects.book.transactions.indexOf(transaction), 1);
-
 						this.deleteTransaction(transaction);
 					}
 				}
@@ -184,7 +183,7 @@ export default {
 
 	computed: {
 		monthSwitcherList () {
-			var months = new BookReport(this.objects.book).getAllMonths();
+			var months = this.objects.book.report.allMonths;
 			var ret = {};
 
 			months.forEach((month) => {
@@ -196,8 +195,8 @@ export default {
 			return ret;
 		},
 
-		monthEconomies () {
-			var e = new BookReport(this.objects.book).getSavingsForMonth(this.month);
+		monthSavings () {
+			var e = this.objects.book.report.savingsForMonths[this.month];
 
 			if (e < 0) {
 				return 'En attente';
