@@ -117,17 +117,19 @@ class Book {
 	}
 
 	addTransaction (title, categoryId, amount, date, direction) {
-		this.transactions.push({
+		var transaction = {
 			title,
 			categoryId,
 			amount,
 			date,
 			direction
-		});
+		};
+
+		this.transactions.push(transaction);
 
 		this.buildReport();
 
-		return this.transactions[this.transactions.length - 1];
+		return transaction;
 	}
 
 	removeTransaction (transaction) {

@@ -145,6 +145,8 @@ export default {
 			transaction.date = Dates.parse(transaction._fdate);
 
 			Api.saveTransaction(transaction, this.objects.book);
+
+			this.objects.book.buildReport();
 		},
 
 		deleteTransaction (transaction) {

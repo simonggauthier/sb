@@ -21,7 +21,7 @@
 			@import url('css/font-awesome-all.css');
 		</style>
 
-		<link rel="stylesheet" type="text/css" href="css/theme.css" />
+		<link rel="stylesheet" type="text/css" href="css/theme.css?version=7" />
 
 		<title>SB</title>
 
@@ -37,6 +37,6 @@
 			<app></app>
 		</div>
 		
-		<script src="bundle.js?version=6"></script>
+		<script src="bundle.js?version=7"></script>
 	</body>
 </html>

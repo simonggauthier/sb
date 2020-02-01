@@ -8,8 +8,8 @@
 				<switcher :list="reports" v-model="reportType"></switcher>
 			</div>
 
-			<div class="report" :class="key" v-for="(report, key) in reports">
-				<data-table :tableModel="report.buildTableModel()" :tableData="report.buildTableData()" :selectable="false"></data-table>
+			<div class="report" v-if="reportType === key" :class="key" v-for="(report, key) in reports">
+				<data-table v-if="report.buildTableModel" :tableModel="report.buildTableModel()" :tableData="report.buildTableData()" :selectable="false"></data-table>
 			</div>
 		</div>
 	</div>
@@ -29,12 +29,16 @@ export default {
 			reportType: 'category-average-month',
 
 			reports: {
+				'savings-total': {
+					name: 'Économies totales'
+				},
+
 				'category-average-month': {
 					name: 'Moyenne mensuelle par catégorie',
 
 					buildTableModel () {
 						return {
-							sort: {
+							sort: { 
 								key: 'categoryId',
 								direction: 'ascending'
 							},
