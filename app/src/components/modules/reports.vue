@@ -26,11 +26,43 @@ export default {
 		var t = this;
 
 		return {
-			reportType: 'category-average-month',
+			reportType: 'savings-total',
 
 			reports: {
 				'savings-total': {
-					name: 'Économies totales'
+					name: 'Économies totales',
+
+					buildTableModel () {
+						return {
+							sort: { 
+								key: 'key',
+								direction: 'ascending'
+							},
+
+							columns: {
+								'key': {
+									title: 'Économies',
+									type: 'string',
+									width: '60%'
+								},
+								'amount': {
+									title: 'Montant',
+									type: 'money',
+									width: '40%'
+								}
+							}
+						};
+					},
+
+					buildTableData () {
+						return [{
+							key: 'Moyenne d\'économies par mois',
+							amount: t.objects.book.report.averageSavingsPerMonth
+						}, {
+							key: 'Économies totales',
+							amount: t.objects.book.report.totalSavings
+						}]
+					}
 				},
 
 				'category-average-month': {

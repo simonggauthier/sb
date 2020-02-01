@@ -19,7 +19,9 @@ class BookReport {
 		this.allMonths = null;
 		this.transactionsForMonths = {};
 		this.savingsForMonths = {};
+		this.averageSavingsPerMonth = 0;
 		this.monthlyTotalPerCategory = {};
+		this.totalSavings = 0;
 	}
 }
 
@@ -105,13 +107,15 @@ class Book {
 			});
 		});
 
-		for (var month in report.monthlyTotalPerCategory) {
-			console.log(month);
+		// averageSavingsPerMonth
+		// totalSavings
+		Object.keys(report.savingsForMonths).forEach((k) => {
+			report.totalSavings += report.savingsForMonths[k];
+		})
 
-			for (var cat in report.monthlyTotalPerCategory[month]) {
-				console.log(this.getCategory(cat).name + ': ' + report.monthlyTotalPerCategory[month][cat]);
-			}
-		}
+		report.averageSavingsPerMonth = report.totalSavings / Object.keys(report.savingsForMonths).length;
+
+		console.log(report);
 
 		this.report = report;
 	}
