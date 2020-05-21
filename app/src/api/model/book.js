@@ -14,7 +14,7 @@ var idc = (a, b) => {
 };
 
 class BookReport {
-	constructor () {
+	constructor() {
 		this.mostRecentTransaction = null;
 		this.allMonths = null;
 		this.transactionsForMonths = {};
@@ -26,11 +26,10 @@ class BookReport {
 }
 
 class Book {
-	constructor () {
+	constructor() {
 		this.id = null;
 		this.categories = [];
 		this.transactions = [];
-		this.objectives = [];
 		this.report = null;
 
 		this.sorters = {
@@ -60,7 +59,7 @@ class Book {
 			return Dates.getMonth(transaction.date);
 		}).filter((monthName, i, self) => {
 			return self.indexOf(monthName) === i;
-		});		
+		});
 
 		report.transactionsForMonths = {};
 		report.savingsForMonths = {};
@@ -75,7 +74,7 @@ class Book {
 			// savingsForMonths
 			var s = report.transactionsForMonths[month].map((transaction) => {
 				var v = parseFloat(transaction.amount);
-			
+
 				if (transaction.direction === 'output') {
 					v = 0 - v;
 				}
@@ -94,8 +93,8 @@ class Book {
 
 			this.categories.forEach((category) => {
 				var t = report.transactionsForMonths[month]
-				.filter((transaction) => idc(transaction.categoryId, category.id))
-				.map((transaction) => parseFloat(transaction.amount));
+					.filter((transaction) => idc(transaction.categoryId, category.id))
+					.map((transaction) => parseFloat(transaction.amount));
 
 				if (t.length > 0) {
 					t = t.reduce((acc, curr) => acc + curr);
@@ -178,6 +177,6 @@ class Book {
 	}
 }
 
-export { 
+export {
 	Book
 };

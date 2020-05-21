@@ -1,0 +1,64 @@
+{
+    "entities": {
+        "book": [
+            "id",
+            "name",
+            "ownerId"
+        ],
+        "category": [
+            "id:number",
+            "bookId",
+            "name",
+            "color"
+        ],
+        "transaction": [
+            "id:number",
+            "bookId",
+            "direction",
+            "title",
+            "categoryId",
+            "amount:money",
+            "creationDate:date"
+        ],
+        "user": [
+            "id",
+            "passwordHash"
+        ],
+        "loginToken": [
+            "id",
+            "ownerId",
+            "device",
+            "lastUseDate:date"
+        ]
+    },
+    "routes": {
+        "post:/execute": [
+            "book:json"
+        ],
+        "post:/login": [
+            "username",
+            "password",
+            "device"
+        ],
+        "post:/login-by-token": [
+            "tokenId"
+        ],
+        "post:/logout": [],
+        "get:/book": [
+            "name"
+        ],
+        "entity:/category": [
+            "name",
+            "color",
+            "bookId"
+        ],
+        "entity:/transaction": [
+            "bookId",
+            "direction",
+            "title",
+            "categoryId",
+            "amount",
+            "date"
+        ]
+    }
+}

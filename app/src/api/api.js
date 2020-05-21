@@ -23,8 +23,8 @@ class Api {
 	static login (username, password) {
 		return new Promise((resolve, reject) => {
 			$.post(makeApiUrl('login'), {
-				username: username, 
-				password: password, 
+				username: username,
+				password: password,
 				device: getCurrentDevice()
 			}, (data) => {
 				console.log(data);
@@ -54,7 +54,7 @@ class Api {
 			}).fail((e) => {
 				Api.tryReject(e, reject);
 			});
-		});		
+		});
 	}
 
 	static getBook (name) {
@@ -123,16 +123,6 @@ class Api {
 				Api.tryReject(e, reject);
 			});
 		});
-	}
-
-	static saveObjective (objective) {
-		return new Promise((resolve, reject) => {
-			$.post(makeApiUrl('objective'), objective, (data) => {
-				resolve(data);
-			}).fail((e) => {
-				Api.tryReject(e, reject);
-			});
-		});		
 	}
 
 	static tryReject (error, reject) {

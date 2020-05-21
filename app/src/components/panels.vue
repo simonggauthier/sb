@@ -4,7 +4,7 @@
 
 		<div class="title">
 			<h1>SB</h1>
-			<img src="img/logo_transparent.png" alt="" />
+			<img src="img/logo_transparent.png" alt />
 		</div>
 
 		<div class="modules">
@@ -69,16 +69,13 @@ export default {
 		AddTransaction,
 		Reports,
 		TransactionList,
-		Objectives,
 		CategoryEditor
 	}
 }
 </script>
 
 <style>
-
 .panels {
-
 }
 
 .panels > .title {
@@ -111,5 +108,4 @@ export default {
 		width: 40%;
 	}
 }
-
 </style>
