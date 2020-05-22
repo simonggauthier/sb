@@ -20,7 +20,13 @@
 		</div>
 
 		<div class="transactions">
-			<data-table ref="table" :tableModel="table" :tableData="objects.book.transactions" :selectable="true" @selected="onTransactionSelected"></data-table>
+			<data-table
+				ref="table"
+				:tableModel="table"
+				:tableData="objects.book.transactions"
+				:selectable="true"
+				@selected="onTransactionSelected"
+			></data-table>
 		</div>
 	</div>
 </template>
@@ -59,7 +65,7 @@ export default {
 						title: 'Catégorie',
 						type: 'category',
 						width: '30%',
-						
+
 						getCategory: (id) => {
 							return t.objects.book.getCategory(id);
 						}
@@ -73,7 +79,7 @@ export default {
 
 				filter: (transaction) => {
 					return (transaction.direction === t.transactionDirection) &&
-						   (Formatting.date(transaction.date).indexOf(t.month) === 0);
+						(Formatting.date(transaction.creationDate).indexOf(t.month) === 0);
 				}
 			},
 
@@ -135,14 +141,16 @@ export default {
 	mounted () {
 		var transaction = this.objects.book.report.mostRecentTransaction;
 
+		console.log(this.objects.book);
+
 		if (transaction) {
-			this.month = Dates.getMonth(transaction.date);
+			this.month = Dates.getMonth(transaction.creationDate);
 		}
 	},
 
 	methods: {
 		updateTransaction (transaction) {
-			transaction.date = Dates.parse(transaction._fdate);
+			transaction.creationDate = Dates.parse(transaction._fdate);
 
 			Api.saveTransaction(transaction, this.objects.book);
 
@@ -156,7 +164,7 @@ export default {
 		},
 
 		createModalMission (transaction) {
-			transaction._fdate = Formatting.date(transaction.date);
+			transaction._fdate = Formatting.date(transaction.creationDate);
 
 			return {
 				title: 'Modifier une transaction',
@@ -216,7 +224,6 @@ export default {
 </script>
 
 <style>
-
 .transaction-list .options {
 	margin-top: 20px;
 }
@@ -224,5 +231,4 @@ export default {
 .transaction-list .scroll {
 	max-height: 300px;
 }
-
 </style>

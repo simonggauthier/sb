@@ -2,5 +2,5 @@ Options +FollowSymLinks
 RewriteEngine On
 RewriteBase /
 
-RewriteCond %{REQUEST_URI} !^/sbapi/sb.php$
-RewriteRule ^(.+)$  /sbapi/sb.php?action=$1 [L,NC,QSA]
+RewriteCond %{REQUEST_URI} !^/sbapi/implementation.php$
+RewriteRule ^(.+)$  /sbapi/implementation.php?action=$1 [L,NC,QSA]

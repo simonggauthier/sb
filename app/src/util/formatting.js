@@ -1,8 +1,6 @@
-import Dates from 'util/dates';
-
 var Formatting = {
 	date: (d) => {
-		return Dates.format(d, 'yyyy-MM-dd');
+		return d;
 	},
 
 	money: (m) => {

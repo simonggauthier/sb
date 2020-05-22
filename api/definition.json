@@ -16,7 +16,7 @@
             "bookId",
             "direction",
             "title",
-            "categoryId",
+            "categoryId:number",
             "amount:money",
             "creationDate:date"
         ],

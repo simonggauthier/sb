@@ -1,5 +1,8 @@
 <?php
 
+include_once 'collection.php';
+include_once 'definition.php';
+
 function randomString()
 {
 	return bin2hex(openssl_random_pseudo_bytes(32));
@@ -37,7 +40,6 @@ function notExists($value)
 
 class Api
 {
-	private $routes;
 	public $definition;
 
 	protected function __construct()
@@ -45,8 +47,6 @@ class Api
 		session_start();
 
 		$this->definition = new ApiDefinition('../definition.json');
-
-		$this->routes = array();
 	}
 
 	protected function checkPassword($passwordHash, $password)
@@ -71,6 +71,10 @@ class Api
 		if (!isset($_SESSION['userId'])) {
 			throw new ApiException('Not logged in', 400);
 		}
+
+		if (!$_SESSION['userId']) {
+			throw new ApiException('Not logged in', 400);
+		}
 	}
 
 	protected function error($e)
@@ -85,21 +89,28 @@ class Api
 		http_response_code(200);
 
 		if ($payload) {
-			echo json_encode($payload);
+			if (!($payload instanceof Collection)) {
+				$payload = new Collection($payload);
+			}
+
+			echo json_encode($payload->toArray());
 		}
 	}
 
 	protected function route()
 	{
+		$server = new Collection($_SERVER);
+		$request = new Collection($_REQUEST);
+
 		header('Content-Type: application/json; charset=utf-8');
 
-		$method = strtolower($_SERVER['REQUEST_METHOD']);
+		$method = strtolower($server->get('REQUEST_METHOD'));
 
-		if (!isset($_REQUEST['action'])) {
+		if (!$request->hasKey('action')) {
 			throw new ApiException('No action parameter', 400);
 		}
 
-		$action = $_REQUEST['action'];
+		$action = $request->get('action');
 
 		$route = $this->definition->findRoute($method,  '/' . $action);
 
@@ -109,16 +120,12 @@ class Api
 
 		$params = $route->extractParams();
 
-		$i = 0;
-
-		foreach ($route->parameters as $param) {
-			if (!isset($params[$i])) {
+		$route->parameters->forEach(function ($key, $param, $i) use ($params) {
+			if (!$params->hasKey($i)) {
 				throw new ApiException('Invalid parameter: ' . $param->name, 400);
 			}
+		});
 
-			$i++;
-		}
-
-		call_user_func_array(array($this, $route->controllerName), $params);
+		call_user_func_array(array($this, $route->controllerName), $params->toArray());
 	}
 }

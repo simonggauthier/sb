@@ -1,6 +1,7 @@
 <?php
 
-include_once(dirname(__FILE__) . '/../util.php');
+include_once 'collection.php';
+include_once 'util.php';
 
 function handlerName($action)
 {
@@ -37,11 +38,20 @@ class Attribute
         if ($this->hint === 'number') {
             return intval($value);
         } else if ($this->hint === 'date') {
-            return strtotime($value);
+            return $value;
         } else if ($this->hint === 'money') {
-            return substr($value, 0, strlen($value) - 2) . '.' . substr($value, strlen($value) - 2);
+            if (!strpos($value, '.')) {
+                $value .= '.00';
+            }
+
+            return $value;
         }
 
+        return $value;
+    }
+
+    public function makeInsertValue($value)
+    {
         return $value;
     }
 }
@@ -54,7 +64,7 @@ class Entity
     public function __construct($type)
     {
         $this->type = $type;
-        $this->attributes = array();
+        $this->attributes = new Collection();
     }
 
     public function tableName()
@@ -68,26 +78,18 @@ class Entity
         return $ret . 's';
     }
 
-    public function getAttribute($name)
+    public function findAttribute($name)
     {
-        foreach ($this->attributes as $attribute) {
-            if ($attribute->name === $name) {
-                return $attribute;
-            }
-        }
-
-        return null;
+        return $this->attributes->find(function ($key, $attribute) use ($name) {
+            return $attribute->name === $name;
+        });
     }
 
-    public function getAttributeByColumnName($columnName)
+    public function findAttributeByColumnName($columnName)
     {
-        foreach ($this->attributes as $attribute) {
-            if ($attribute->columnName() === $columnName) {
-                return $attribute;
-            }
-        }
-
-        return null;
+        return $this->attributes->find(function ($key, $attribute) use ($columnName) {
+            return $attribute->columnName() === $columnName;
+        });
     }
 }
 
@@ -121,27 +123,23 @@ class Route
 
     public function extractParams()
     {
-        $ret = array();
-        $arr = $this->method === 'post' ? $_POST : $_GET;
+        $ret = new Collection();
+        $arr = new Collection($this->method === 'post' ? $_POST : $_GET);
 
-        foreach ($this->parameters as $parameter) {
-            if (isset($arr[$parameter->name])) {
-                array_push($ret, $arr[$parameter->name]);
+        $this->parameters->forEach(function ($key, $parameter) use ($arr, &$ret) {
+            if ($arr->hasKey($parameter->name)) {
+                $ret->push($arr->get($parameter->name));
             }
-        }
+        });
 
         return $ret;
     }
 
     public function hasParameter($name)
     {
-        foreach ($this->parameters as $parameter) {
-            if ($parameter->name === $name) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->parameters->find(function ($key, $parameter) use ($name) {
+            return $parameter->name === $name;
+        }) != null;
     }
 }
 
@@ -154,41 +152,44 @@ class ApiDefinition
     {
         $json = json_decode(fileToString($filename), true);
 
-        $this->entities = array();
+        $this->entities = new Collection();
 
-        $jsonEntities = $json['entities'];
+        $jsonEntities = new Collection($json['entities']);
 
-        foreach ($jsonEntities as $key => $value) {
+        $jsonEntities->forEach(function ($key, $jsonEntity) {
+            $jsonEntity = new Collection($jsonEntity);
+
             $entity = new Entity($key);
-            $entity->attributes = $this->makeAttributes($value);
+            $entity->attributes = $this->makeAttributes($jsonEntity);
 
-            array_push($this->entities, $entity);
-        }
+            $this->entities->push($entity);
+        });
 
-        $this->routes = array();
+        $this->routes = new Collection();
 
-        $jsonRoutes = $json['routes'];
+        $jsonRoutes = new Collection($json['routes']);
 
-        foreach ($jsonRoutes as $key => $value) {
+        $jsonRoutes->forEach(function ($key, $jsonRoute) {
+            $jsonRoute = new Collection($jsonRoute);
+
             $comps = explode(':', $key);
-
             $method = $comps[0];
 
             if ($method === 'entity') {
-                array_push($this->routes, new Route('post', $comps[1], $this->makeParams($value), 'create' . ucwords($this->findControllerName($comps[1], $method))));
+                $this->routes->push(new Route('post', $comps[1], $this->makeParams($jsonRoute), 'create' . ucwords($this->makeControllerName($comps[1], $method))));
 
-                array_push($value, 'id');
-                array_push($this->routes, new Route('post', $comps[1], $this->makeParams($value), 'update' . ucwords($this->findControllerName($comps[1], $method))));
+                $jsonRoute->push('id');
+                $this->routes->push(new Route('post', $comps[1], $this->makeParams($jsonRoute), 'update' . ucwords($this->makeControllerName($comps[1], $method))));
 
-                $value = array('id', 'delete');
-                array_push($this->routes, new Route('post', $comps[1], $this->makeParams($value), 'delete' . ucwords($this->findControllerName($comps[1], $method))));
+                $jsonRoute = new Collection(['id', 'delete']);
+                $this->routes->push(new Route('post', $comps[1], $this->makeParams($jsonRoute), 'delete' . ucwords($this->makeControllerName($comps[1], $method))));
             } else {
-                array_push($this->routes, new Route($method, $comps[1], $this->makeParams($value), $this->findControllerName($comps[1], $method)));
+                $this->routes->push(new Route($method, $comps[1], $this->makeParams($jsonRoute), $this->makeControllerName($comps[1], $method)));
             }
-        }
+        });
     }
 
-    private function findControllerName($name, $method)
+    private function makeControllerName($name, $method)
     {
         $ret = str_replace('/', '', $name);
         $ret = str_replace('-', ' ', $ret);
@@ -208,10 +209,10 @@ class ApiDefinition
 
     private function makeAttributes($attributes)
     {
-        $ret = array();
+        $ret = new Collection();
 
-        foreach ($attributes as $attr) {
-            $comps = explode(':', $attr);
+        $attributes->forEach(function ($key, $attribute) use (&$ret) {
+            $comps = explode(':', $attribute);
 
             $name = $comps[0];
             $hint = '';
@@ -220,17 +221,17 @@ class ApiDefinition
                 $hint = $comps[1];
             }
 
-            array_push($ret, new Attribute($name, $hint));
-        }
+            $ret->push(new Attribute($name, $hint));
+        });
 
         return $ret;
     }
 
     private function makeParams($params)
     {
-        $ret = array();
+        $ret = new Collection();
 
-        foreach ($params as $param) {
+        $params->forEach(function ($key, $param) use (&$ret) {
             $comps = explode(':', $param);
 
             $name = $comps[0];
@@ -240,47 +241,44 @@ class ApiDefinition
                 $hint = $comps[1];
             }
 
-            array_push($ret, new Parameter($name, $hint));
-        }
+            $ret->push(new Parameter($name, $hint));
+        });
 
         return $ret;
     }
 
     public function findRoute($method, $action)
     {
-        $arr = $method === 'post' ? $_POST : $_GET;
+        $arr = new Collection($method === 'post' ? $_POST : $_GET);
 
-        $isUpdate = isset($arr['id']) && !isset($arr['delete']);
-        $isDelete = isset($arr['delete']);
+        $isUpdate = $arr->hasKey('id') && !$arr->hasKey('delete');
+        $isDelete = $arr->hasKey('delete');
 
-        foreach ($this->routes as $route) {
-            if ($route->method === $method && $route->action === $action) {
-                if ($isUpdate && $route->hasParameter('id')) {
-                    return $route;
-                }
-
-                if ($isDelete && $route->hasParameter('delete')) {
-
-                    return $route;
-                }
-
-                if (!$isUpdate && !$isDelete) {
-                    return $route;
-                }
+        return $this->routes->find(function ($key, $route) use ($isUpdate, $isDelete, $action) {
+            if ($route->action !== $action) {
+                return false;
             }
-        }
 
-        return null;
+            if ($isUpdate && $route->hasParameter('id')) {
+                return true;
+            }
+
+            if ($isDelete && $route->hasParameter('delete')) {
+                return true;
+            }
+
+            if (!$isUpdate && !$isDelete) {
+                return true;
+            }
+
+            return false;
+        });
     }
 
     public function getEntity($type)
     {
-        foreach ($this->entities as $entity) {
-            if ($entity->type === $type) {
-                return $entity;
-            }
-        }
-
-        return null;
+        return $this->entities->find(function ($key, $entity) use ($type) {
+            return $entity->type === $type;
+        });
     }
 }

@@ -8,29 +8,48 @@
 
 		<div class="form">
 			<div class="info error" v-if="error.length > 0">
-				<i class="fas fa-exclamation-circle"></i> {{ error }}
+				<i class="fas fa-exclamation-circle"></i>
+				{{ error }}
 			</div>
 
 			<div class="info message" v-if="message.length > 0" @click="onMessageClick">
-				<i class="fas fa-check-circle"></i> {{ message }}
+				<i class="fas fa-check-circle"></i>
+				{{ message }}
 			</div>
 
 			<label>Direction</label>
 			<switcher :list="transactionDirectionSwitcherList" v-model="form.direction"></switcher>
 
-			<input type="text" placeholder="> Date" v-model="form.date" @focus="onDateFocus" aria-label="Date" />
+			<input
+				type="text"
+				placeholder="> Date"
+				v-model="form.creationDate"
+				@focus="onDateFocus"
+				aria-label="Date"
+			/>
 
-			<input type="text" placeholder="> Titre" v-model="form.title" aria-label="Titre">
+			<input type="text" placeholder="> Titre" v-model="form.title" aria-label="Titre" />
 
-			<select v-bind:class="{ placeholder: form.categoryId === '_' }" v-model="form.categoryId" :style="{ 'border-color': (form.categoryId === '_' ? '' : objects.book.getCategory(form.categoryId).color) }" aria-label="Catégorie">
+			<select
+				v-bind:class="{ placeholder: form.categoryId === '_' }"
+				v-model="form.categoryId"
+				:style="{ 'border-color': (form.categoryId === '_' ? '' : objects.book.getCategory(form.categoryId).color) }"
+				aria-label="Catégorie"
+			>
 				<option value="_">> Catégorie</option>
 
-				<option v-for="category in objects.book.categories" :value="category.id">
-					{{ category.name }}
-				</option>
+				<option v-for="category in objects.book.categories" :value="category.id">{{ category.name }}</option>
 			</select>
 
-			<input type="number" min="0.01" step="0.01" placeholder="> Montant" v-model="form.amount" @change="onAmountChange" aria-label="Montant" >
+			<input
+				type="number"
+				min="0.01"
+				step="0.01"
+				placeholder="> Montant"
+				v-model="form.amount"
+				@change="onAmountChange"
+				aria-label="Montant"
+			/>
 
 			<button class="icon" type="button" @click="onAdd">Ajouter</button>
 		</div>
@@ -120,10 +139,10 @@ export default {
 
 			if (this.error.length === 0) {
 				var transaction = this.objects.book.addTransaction(
-					this.form.title, 
-					this.form.categoryId, 
-					this.form.amount, 
-					Dates.parse(this.form.date), 
+					this.form.title,
+					this.form.categoryId,
+					this.form.amount,
+					Dates.parse(this.form.date),
 					this.form.direction
 				);
 
@@ -132,7 +151,7 @@ export default {
 					title: '',
 					categoryId: '_',
 					amount: '',
-					direction: 'output'				
+					direction: 'output'
 				};
 
 				Api.saveTransaction(transaction, this.objects.book).then((data) => {
@@ -150,7 +169,7 @@ export default {
 				if (t.dateMode === 'today' || transaction == null) {
 					return new Date().getTime();
 				} else {
-					return transaction.date;
+					return transaction.creationDate;
 				}
 			}
 
@@ -159,7 +178,7 @@ export default {
 				e.target.setSelectionRange(0, this.form.date.length);
 			}
 		},
-		
+
 		onAmountChange () {
 			this.form.amount = Formatting.moneyDigits(this.form.amount);
 		},
@@ -176,8 +195,9 @@ export default {
 </script>
 
 <style>
-
-.add-transaction input, .add-transaction select, .add-transaction button {
+.add-transaction input,
+.add-transaction select,
+.add-transaction button {
 	width: 100%;
 }
 
@@ -188,5 +208,4 @@ export default {
 .add-transaction .message {
 	cursor: pointer;
 }
-
 </style>

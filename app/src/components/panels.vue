@@ -21,10 +21,6 @@
 			</div>
 
 			<div class="module">
-				<objectives :objects="objects" @requestModal="onRequestModal"></objectives>
-			</div>
-
-			<div class="module">
 				<category-editor :objects="objects" @requestModal="onRequestModal"></category-editor>
 			</div>
 		</div>
@@ -36,7 +32,6 @@ import Modal from 'components/modal';
 import AddTransaction from 'components/modules/add-transaction';
 import Reports from 'components/modules/reports';
 import TransactionList from 'components/modules/transaction-list';
-import Objectives from 'components/modules/objectives';
 import CategoryEditor from 'components/modules/category-editor';
 
 export default {
@@ -75,9 +70,6 @@ export default {
 </script>
 
 <style>
-.panels {
-}
-
 .panels > .title {
 	width: 100%;
 	padding: 10px 0 10px 0;

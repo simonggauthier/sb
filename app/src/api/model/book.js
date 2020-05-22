@@ -38,7 +38,7 @@ class Book {
 					var x = direction === 'ascending' ? a : b;
 					var y = direction === 'ascending' ? b : a;
 
-					return x.date - y.date;
+					return x.creationDate - y.creationDate;
 				};
 			}
 		};
@@ -56,7 +56,7 @@ class Book {
 
 		// allMonths
 		report.allMonths = this.transactions.sort(this.sorters.transactionDate('ascending')).map((transaction) => {
-			return Dates.getMonth(transaction.date);
+			return Dates.getMonth(transaction.creationDate);
 		}).filter((monthName, i, self) => {
 			return self.indexOf(monthName) === i;
 		});
@@ -68,7 +68,7 @@ class Book {
 		report.allMonths.forEach((month) => {
 			// transactionsForMonths
 			report.transactionsForMonths[month] = this.transactions.filter((transaction) => {
-				return Dates.getMonth(transaction.date) === month;
+				return Dates.getMonth(transaction.creationDate) === month;
 			});
 
 			// savingsForMonths
