@@ -2,7 +2,8 @@
 <html lang="fr">
 
 <head>
-	<link rel="icon" type="image/png" href="img/icon.png" />
+	<link rel="icon" type="image/png" href="img/leaf.png" />
+	<link rel="manifest" href="manifest.json" />
 
 	<meta name="description" content="Simon's budget" />
 
@@ -13,6 +14,7 @@
 	<meta http-equiv="Expires" content="0" />
 
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
 
 	<style>
 		@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
@@ -20,15 +22,9 @@
 		@import url('css/font-awesome-all.css');
 	</style>
 
-	<link rel="stylesheet" type="text/css" href="css/theme.css?version=8" />
+	<link rel="stylesheet" type="text/css" href="css/theme.css?version=$theme.version" />
 
 	<title>SB</title>
-
-	<script>
-		if ('serviceWorker' in navigator) {
-			navigator.serviceWorker.register('service-worker.js');
-		}
-	</script>
 </head>
 
 <body>
@@ -36,7 +32,7 @@
 		<app></app>
 	</div>
 
-	<script src="bundle.js?version=8"></script>
+	<script src="bundle.js?version=11"></script>
 </body>
 
 </html>

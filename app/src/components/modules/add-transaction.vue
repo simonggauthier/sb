@@ -18,6 +18,7 @@
 			</div>
 
 			<label>Direction</label>
+
 			<switcher :list="transactionDirectionSwitcherList" v-model="form.direction"></switcher>
 
 			<input

@@ -1,6 +1,6 @@
 <template>
 	<div class="panels">
-		<modal :mission="modal.mission" @close="onModalClose"></modal>
+		<modal v-if="modal.mission" :mission="modal.mission" @close="onModalClose"></modal>
 
 		<div class="title">
 			<h1>SB</h1>
@@ -10,6 +10,10 @@
 		<div class="modules">
 			<div class="module">
 				<add-transaction :api="api" :objects="objects"></add-transaction>
+			</div>
+
+			<div class="module">
+				<add-transaction-batch :api="api" :objects="objects"></add-transaction-batch>
 			</div>
 
 			<div class="module">
@@ -28,8 +32,10 @@
 </template>
 
 <script>
+import Vue from 'vue';
 import Modal from 'components/modal';
 import AddTransaction from 'components/modules/add-transaction';
+import AddTransactionBatch from 'components/modules/add-transaction-batch';
 import Reports from 'components/modules/reports';
 import TransactionList from 'components/modules/transaction-list';
 import CategoryEditor from 'components/modules/category-editor';
@@ -48,6 +54,8 @@ export default {
 	methods: {
 		onModalClose () {
 			this.modal.mission = null;
+
+			this.$forceUpdate();
 		},
 
 		onRequestModal (mission) {
@@ -58,6 +66,7 @@ export default {
 	components: {
 		Modal,
 		AddTransaction,
+		AddTransactionBatch,
 		Reports,
 		TransactionList,
 		CategoryEditor

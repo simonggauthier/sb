@@ -33,93 +33,97 @@ class Book {
 	}
 
 	buildReport () {
-		var report = new BookReport();
+		console.log('Build report');
+
+		let report = new BookReport();
+		let cache = {};
+
+		cache.transactions = {};
+		cache.transactions.sortedByCreationDate = {};
+		cache.transactions.sortedByCreationDate.descending = this.transactions.sort(this.sorters.transactionDate('descending'));
+		cache.transactions.sortedByCreationDate.ascending = cache.transactions.sortedByCreationDate.descending.slice().reverse();
 
 		// mostRecentTransaction
-		if (this.transactions.length === 0) {
-			report.mostRecentTransaction = null;
-		} else {
-			report.mostRecentTransaction = this.transactions.sort(this.sorters.transactionDate('descending'))[0];
+		report.mostRecentTransaction = null;
+
+		if (this.transactions.length > 0) {
+			report.mostRecentTransaction = cache.transactions.sortedByCreationDate['descending'][0];
 		}
 
 		// mostRecentOutputTransaction
-		if (this.transactions.length === 0) {
-			report.mostRecentOutputTransaction = null;
-		} else {
-			report.mostRecentOutputTransaction = this.transactions.filter((transaction) => {
+		report.mostRecentOutputTransaction = null;
+
+		if (this.transactions.length > 0) {
+			let output = cache.transactions.sortedByCreationDate['descending'].filter((transaction) => {
 				return transaction.direction === 'output';
-			}).sort(this.sorters.transactionDate('descending'))[0];
+			});
+
+			if (output.length > 0) {
+				report.mostRecentOutputTransaction = output[0];
+			}
 		}
 
 		// allMonths
-		report.allMonths = this.transactions.sort(this.sorters.transactionDate('ascending')).map((transaction) => {
-			return Dates.getYearAndMonth(transaction.creationDate);
-		}).filter((monthName, i, self) => {
-			return self.indexOf(monthName) === i;
-		});
+		cache.allMonths = {};
 
+		report.allMonths = [];
 		report.transactionsForMonths = {};
 		report.savingsForMonths = {};
 		report.monthlyTotalPerCategory = {};
+		report.totalSavings = 0;
 
-		report.allMonths.forEach((month) => {
-			// transactionsForMonths
-			report.transactionsForMonths[month] = this.transactions.filter((transaction) => {
-				return Dates.getYearAndMonth(transaction.creationDate) === month;
-			});
+		cache.transactions.sortedByCreationDate.ascending.forEach((transaction) => {
+			// allMonths
+			let yam = Dates.getYearAndMonth(transaction.creationDate);
 
-			// savingsForMonths
-			var s = report.transactionsForMonths[month].map((transaction) => {
-				var v = parseFloat(transaction.amount);
+			if (!cache.allMonths[yam]) {
+				cache.allMonths[yam] = true;
 
-				if (transaction.direction === 'output') {
-					v = 0 - v;
-				}
-
-				return v;
-			});
-
-			if (s.length === 0) {
-				report.savingsForMonths[month] = 0;
-			} else {
-				report.savingsForMonths[month] = s.reduce((acc, curr) => acc + curr);
+				report.allMonths.push(yam);
 			}
 
+			// transactionsForMonths
+			if (!(yam in report.transactionsForMonths)) {
+				report.transactionsForMonths[yam] = [];
+			}
+
+			report.transactionsForMonths[yam].push(transaction);
+
+			// savingsForMonths
+			// totalSavings
+			if (!(yam in report.savingsForMonths)) {
+				report.savingsForMonths[yam] = 0;
+			}
+
+			let mod = transaction.direction === 'output' ? -1 : 1;
+			let amount = (mod * parseFloat(transaction.amount));
+
+			report.savingsForMonths[yam] += amount;
+			report.totalSavings += amount;
+
 			// monthlyTotalPerCategory
-			report.monthlyTotalPerCategory[month] = {};
+			if (!(yam in report.monthlyTotalPerCategory)) {
+				report.monthlyTotalPerCategory[yam] = {};
+			}
 
-			this.categories.forEach((category) => {
-				var t = report.transactionsForMonths[month]
-					.filter((transaction) => transaction.categoryId === category.id)
-					.map((transaction) => parseFloat(transaction.amount));
+			if (!(transaction.categoryId in report.monthlyTotalPerCategory[yam])) {
+				report.monthlyTotalPerCategory[yam][transaction.categoryId] = 0;
+			}
 
-				if (t.length > 0) {
-					t = t.reduce((acc, curr) => acc + curr);
-				} else {
-					t = 0;
-				}
-
-				report.monthlyTotalPerCategory[month][category.id] = t;
-			});
+			report.monthlyTotalPerCategory[yam][transaction.categoryId] += parseFloat(transaction.amount);
 		});
-
-		// averageSavingsPerMonth
-		// totalSavings
-		Object.keys(report.savingsForMonths).forEach((k) => {
-			report.totalSavings += report.savingsForMonths[k];
-		})
 
 		report.averageSavingsPerMonth = report.totalSavings / Object.keys(report.savingsForMonths).length;
 
 		this.report = report;
 	}
 
-	addTransaction (title, categoryId, amount, date, direction) {
+	addTransaction (title, categoryId, amount, creationDate, direction) {
 		var transaction = {
 			title,
 			categoryId,
 			amount,
-			date,
+			creationDate,
 			direction,
 			bookId: this.id
 		};

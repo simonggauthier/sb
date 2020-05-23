@@ -126,7 +126,7 @@ export default {
 				return 0;
 			}
 
-			return a.reduce((a, b) => a + b) / a.length;
+			return a.reduce((a, b) => (a ? a : 0) + (b ? b : 0)) / a.length;
 		}
 	},
 

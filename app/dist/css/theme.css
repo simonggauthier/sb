@@ -18,6 +18,7 @@ button {
 	background-color: #F2A490;
 	color: #fff;
 	font-weight: bold;
+	cursor: pointer;
 }
 
 button:active {

@@ -1,28 +1,52 @@
 <template>
-	<div class="modal" v-if="mission">
+	<div class="modal">
 		<div class="mask"></div>
 
 		<div class="dialog">
-			<div class="title">
-				{{ mission.title }}
-			</div>
+			<div class="title">{{ mission.title }}</div>
 
 			<div class="body">
-				<div class="field" v-for="(field, key) in mission.model">
+				<div class="field" v-for="(field, key) in mission.model" :key="key">
 					<div class="input-string" v-if="field.type === 'string'">
-						<input type="text" v-model="mission.target[key]" @keydown.enter="onClose('ok')" :placeholder="'> ' + field.label" :aria-label="field.label">
+						<input
+							type="text"
+							v-model="mission.target[key]"
+							@keydown.enter="onClose('ok')"
+							:placeholder="'> ' + field.label"
+							:aria-label="field.label"
+						/>
 					</div>
 
 					<div class="input-color" v-if="field.type === 'color'">
-						<input type="color" v-model="mission.target[key]" :placeholder="'> ' + field.label" :aria-label="field.label">
+						<input
+							type="color"
+							v-model="mission.target[key]"
+							:placeholder="'> ' + field.label"
+							:aria-label="field.label"
+						/>
 					</div>
 
 					<div class="input-string" v-if="field.type === 'date'">
-						<input type="text" v-model="mission.target[key]" @keydown.enter="onClose('ok')" :placeholder="'> ' + field.label" :aria-label="field.label">
+						<input
+							type="text"
+							v-model="mission.target[key]"
+							@keydown.enter="onClose('ok')"
+							:placeholder="'> ' + field.label"
+							:aria-label="field.label"
+						/>
 					</div>
 
 					<div class="input-string" v-if="field.type === 'money'">
-						<input type="number" min="0.01" step="0.01" :placeholder="'> ' + field.label" v-model="mission.target[key]" @change="onMoneyChange(mission.target, key)" @keydown.enter="onClose('ok')" :aria-label="field.label" >
+						<input
+							type="number"
+							min="0.01"
+							step="0.01"
+							:placeholder="'> ' + field.label"
+							v-model="mission.target[key]"
+							@change="onMoneyChange(mission.target, key)"
+							@keydown.enter="onClose('ok')"
+							:aria-label="field.label"
+						/>
 					</div>
 
 					<div class="input-switcher" v-if="field.type === 'switcher'">
@@ -31,12 +55,18 @@
 					</div>
 
 					<div class="input-list" v-if="field.type === 'list'">
-						<select v-bind:class="{ placeholder: mission.target[key] === '_' }" v-model="mission.target[key]" :aria-label="field.label">
+						<select
+							v-bind:class="{ placeholder: mission.target[key] === '_' }"
+							v-model="mission.target[key]"
+							:aria-label="field.label"
+						>
 							<option value="_">> {{ field.label }}</option>
 
-							<option v-for="entry in field.getList()" :value="entry.id">
-								{{ field.render(entry) }}
-							</option>
+							<option
+								v-for="entry in field.getList()"
+								:value="entry.id"
+								:key="entry.id"
+							>{{ field.render(entry) }}</option>
 						</select>
 					</div>
 				</div>
@@ -66,16 +96,16 @@ export default {
 	props: ['mission'],
 
 	mounted () {
-		
+
 	},
 
 	methods: {
 		onClose (action) {
+			this.$emit('close');
+
 			if (this.mission.onClose) {
 				this.mission.onClose(action);
 			}
-			
-			this.$emit('close');
 		},
 
 		onMoneyChange (field, key) {
@@ -90,7 +120,6 @@ export default {
 </script>
 
 <style>
-
 .modal {
 	position: fixed;
 	z-index: 100;
@@ -129,5 +158,4 @@ export default {
 	float: right;
 	margin-left: 10px;
 }
-
 </style>

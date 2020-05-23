@@ -41,7 +41,18 @@ class Dates {
 	}
 
 	static getMonthName (month) {
-		return month;
+		let yearC = '';
+		let monthC = month;
+
+		if (month.length === 'YYYY-MM'.length) {
+			yearC = month.substring(0, 4);
+			monthC = month.substring(5);
+		}
+
+		let months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+		let index = parseInt(monthC, 10) - 1;
+
+		return months[index] + (yearC.length > 0 ? ' ' : '') + yearC;
 	}
 };
 
