@@ -1,6 +1,5 @@
 # sb
-
-Simple personal budgeting webapp
+Budget webapp
 
 ## Build
 ``npm run prod``

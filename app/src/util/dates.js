@@ -1,50 +1,50 @@
-import { LocalDateTime, DateTimeFormatter, Instant } from '@js-joda/core';
-import { Locale } from '@js-joda/locale_fr';
+/**
+ * Official date format: 2020-05-23
+ * 						 YYYY-MM-DD
+ */
+
+import moment from 'moment';
 
 class Dates {
-	static toLocalDateTime (ts)  {
-		return LocalDateTime.ofInstant(Instant.ofEpochMilli(ts));
+	static inst (d) {
+		return moment(d, Dates.FORMAT);
 	}
 
-	static format (ts, pattern) {
-		return Dates.toLocalDateTime(ts).format(DateTimeFormatter.ofPattern(pattern).withLocale(Locale.FRANCE));
+	static compare (d1, d2) {
+		return this.inst(d1) - this.inst(d2);
 	}
 
-	static getMonth (ts) {
-		return Dates.format(ts, 'yyyy-MM');
-	}
+	static getMonth (d) {
+		let ret = '' + (this.inst(d).month() + 1);
 
-	static getMonthName (ts) {
-		var ret =  Dates.format(ts, 'MMMM yyyy');
-
-		return ret.substring(0, 1).toUpperCase() + ret.substring(1);
-	}
-
-	static parse (str) {
-		var toInt = (str) => {
-			var ret = parseInt(str, 10);
-
-			if (isNaN(ret)) {
-				throw 'Invalid int';
-			}
-
-			return ret;
-		};
-
-		if (!str) {
-			throw 'Invalid string';
+		if (ret.length === 1) {
+			ret = '0' + ret;
 		}
 
-		var comps = str.split('-');
+		return ret;
+	}
 
-		if (comps.length != 3) {
-			throw 'Invalid string';
-		}
+	static getYear (d) {
+		return this.inst(d).year();
+	}
 
-		var now = new Date();
+	static getYearAndMonth (d) {
+		return this.getYear(d) + '-' + this.getMonth(d);
+	}
 
-		return new Date(toInt(comps[0]), toInt(comps[1]) - 1, toInt(comps[2]), now.getHours(), now.getMinutes(), now.getSeconds()).getTime();
+	static isValid (d) {
+		return this.inst(d).isValid();
+	}
+
+	static now () {
+		return moment().format(Dates.FORMAT);
+	}
+
+	static getMonthName (month) {
+		return month;
 	}
 };
+
+Dates.FORMAT = 'YYYY-MM-DD';
 
 export default Dates;

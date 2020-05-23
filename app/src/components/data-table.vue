@@ -4,19 +4,44 @@
 			<table>
 				<thead>
 					<tr>
-						<th v-for="(col, key) in tableModel.columns" v-on:click="changeSort(key)" v-bind:class="{ money: col.type === 'money' }" v-bind:style="{ width: col.width }">
+						<th
+							v-for="(col, key) in tableModel.columns"
+							@click="changeSort(key)"
+							:class="{ money: col.type === 'money' }"
+							:style="{ width: col.width }"
+							:key="key"
+						>
 							<span>{{ col.title }}</span>
-							<i v-if="tableModel.sort.key === key && tableModel.sort.direction === 'descending'" class="fas fa-arrow-circle-up"></i>
-							<i v-if="tableModel.sort.key === key && tableModel.sort.direction === 'ascending'" class="fas fa-arrow-circle-down"></i>
+							<i
+								v-if="tableModel.sort.key === key && tableModel.sort.direction === 'descending'"
+								class="fas fa-arrow-circle-up"
+							></i>
+							<i
+								v-if="tableModel.sort.key === key && tableModel.sort.direction === 'ascending'"
+								class="fas fa-arrow-circle-down"
+							></i>
 						</th>
 					</tr>
 				</thead>
 
 				<tbody class="scroll">
-					<tr v-for="(row, i) in sort()" v-if="(tableModel.filter && tableModel.filter(row)) || !tableModel.filter" v-on:click="onRowClick(row)" v-bind:class="{ selected: selectedRow === row }">
-						<td v-for="(col, key) in tableModel.columns" v-bind:class="{ money: col.type === 'money' }" v-bind:style="{ width: col.width }">
-							<color-square v-if="col.type === 'color' || col.type === 'category'" :edit="false" :color="findSquareColor(col, row[key], row, key)"></color-square>
-
+					<tr
+						v-for="(row, i) in sortedData"
+						@click="onRowClick(row)"
+						:class="{ selected: selectedRow === row }"
+						:key="i"
+					>
+						<td
+							v-for="(col, key) in tableModel.columns"
+							:class="{ money: col.type === 'money' }"
+							:style="{ width: col.width }"
+							:key="key"
+						>
+							<color-square
+								v-if="col.type === 'color' || col.type === 'category'"
+								:edit="false"
+								:color="findSquareColor(col, row[key], row, key)"
+							></color-square>
 							{{ format(row, col, key) }}
 						</td>
 					</tr>
@@ -28,7 +53,7 @@
 
 <script>
 import ColorSquare from 'components/color-square';
-
+import Dates from 'util/dates';
 import Formatting from 'util/formatting';
 
 export default {
@@ -40,10 +65,6 @@ export default {
 
 	props: ['tableModel', 'tableData', 'selectable'],
 
-	mounted () {
-
-	},
-
 	methods: {
 		format (row, col, key) {
 			var v = row[key];
@@ -51,7 +72,7 @@ export default {
 			if (col.type === 'string' || col.type === 'number') {
 				return v;
 			} else if (col.type === 'date') {
-				return Formatting.date(v);
+				return v;
 			} else if (col.type === 'money') {
 				return Formatting.money(v);
 			} else if (col.type === 'category') {
@@ -61,42 +82,8 @@ export default {
 			}
 		},
 
-		sort () {
-			var key = this.tableModel.sort.key;
-			var col = this.tableModel.columns[key];
-			var direction = this.tableModel.sort.direction;
-
-			return this.tableData.concat().sort((a, b) => {
-				var x = direction === 'ascending' ? a : b;
-				var y = direction === 'ascending' ? b : a;
-
-				x = x[key];
-				y = y[key];
-
-				if (col === undefined) {
-					console.log('wtf');
-					console.log(JSON.stringify(this.tableModel.columns));
-				}
-
-				if (col.type === 'string' || col.type === 'color') {
-					return x.localeCompare(y);
-				} else if (col.type === 'number') {
-					return x - y;
-				} else if (col.type === 'date') {
-					return x - y;
-				} else if (col.type === 'money') {
-					return parseFloat(x) - parseFloat(y);
-				} else if (col.type === 'category') {
-					return col.getCategory(x).name.localeCompare(col.getCategory(y).name);
-				} else {
-					return 0;
-				}
-			});
-		},
-
 		changeSort (key) {
-			if (this.tableModel.sort.key === key)
-			{
+			if (this.tableModel.sort.key === key) {
 				if (this.tableModel.sort.direction === 'ascending') {
 					this.tableModel.sort.direction = 'descending';
 				} else {
@@ -137,6 +124,40 @@ export default {
 		}
 	},
 
+	computed: {
+		sortedData () {
+			var key = this.tableModel.sort.key;
+			var col = this.tableModel.columns[key];
+			var direction = this.tableModel.sort.direction;
+
+			let data = this.tableModel.filter ? this.tableData.filter((row) => {
+				return this.tableModel.filter(row);
+			}) : this.tableData;
+
+			return data.sort((a, b) => {
+				var x = direction === 'ascending' ? a : b;
+				var y = direction === 'ascending' ? b : a;
+
+				x = x[key];
+				y = y[key];
+
+				if (col.type === 'string' || col.type === 'color') {
+					return x.localeCompare(y);
+				} else if (col.type === 'number') {
+					return x - y;
+				} else if (col.type === 'date') {
+					return Dates.compare(x, y);
+				} else if (col.type === 'money') {
+					return parseFloat(x) - parseFloat(y);
+				} else if (col.type === 'category') {
+					return col.getCategory(x).name.localeCompare(col.getCategory(y).name);
+				} else {
+					return 0;
+				}
+			});
+		}
+	},
+
 	components: {
 		ColorSquare
 	}
@@ -144,7 +165,6 @@ export default {
 </script>
 
 <style>
-
 .data-table .money {
 	text-align: right;
 }
@@ -156,5 +176,4 @@ export default {
 .data-table .scroll {
 	overflow-y: scroll;
 }
-
 </style>

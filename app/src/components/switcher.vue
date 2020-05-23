@@ -4,9 +4,7 @@
 			<i class="fas fa-arrow-circle-left"></i>
 		</div>
 
-		<div class="option" v-for="(el, key) in list" v-if="key === value">
-			{{ el.name }}
-		</div>
+		<div class="option">{{ list[value].name }}</div>
 
 		<div class="switch" v-on:click="next(1)">
 			<i class="fas fa-arrow-circle-right"></i>
@@ -18,12 +16,6 @@
 import Formatting from 'util/formatting';
 
 export default {
-	data () {
-		return {
-
-		}
-	},
-
 	props: ['list', 'value'],
 
 	mounted () {
@@ -56,7 +48,6 @@ export default {
 </script>
 
 <style>
-
 .switcher {
 	margin-bottom: 10px;
 }
@@ -67,7 +58,7 @@ export default {
 }
 
 .switcher:after {
-	content: '';
+	content: "";
 	display: block;
 	clear: both;
 }
@@ -80,5 +71,4 @@ export default {
 	font-size: 0.8em;
 	font-weight: bold;
 }
-
 </style>

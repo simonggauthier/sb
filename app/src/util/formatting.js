@@ -1,13 +1,9 @@
-var Formatting = {
-	date: (d) => {
-		return d;
-	},
-
-	money: (m) => {
+class Formatting {
+	static money (m) {
 		return new Intl.NumberFormat('fr-CA', { style: 'currency', currency: 'CAD' }).format(m);
-	},
+	}
 
-	moneyDigits: (m) => {
+	static moneyDigits (m) {
 		if (m.indexOf('.') < 0) {
 			m = m + '.00';
 		}
@@ -18,6 +14,6 @@ var Formatting = {
 
 		return m;
 	}
-};
+}
 
 export default Formatting;

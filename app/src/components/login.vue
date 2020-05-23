@@ -2,27 +2,29 @@
 	<div class="login" v-if="triedToken">
 		<div class="logo">
 			<h1>SB</h1>
-			<img src="img/logo_transparent.png" alt="" />
+			<img src="img/logo.png" alt />
 		</div>
 
 		<div class="form">
-			<div class="error" v-if="error.length > 0">
-				{{error}}
-			</div>
+			<div class="error" v-if="error.length > 0">{{error}}</div>
 
 			<div class="fields">
 				<input type="text" placeholder="Nom d'utilisateur" v-model="username" autocomplete="off" />
-				<input type="password" placeholder="Mot de passe" v-model="password" autocomplete="new-password" v-on:keyup.enter="doLogin" />
+				<input
+					type="password"
+					placeholder="Mot de passe"
+					v-model="password"
+					autocomplete="new-password"
+					@:keyup.enter="login"
+				/>
 			</div>
 
-			<button type="button" class="center-h" v-on:click="doLogin">Connexion</button>
+			<button type="button" class="center-h" @click="login">Connexion</button>
 		</div>
 	</div>
 </template>
 
 <script>
-import Api from 'api/api';
-
 export default {
 	data () {
 		return {
@@ -33,31 +35,35 @@ export default {
 		}
 	},
 
+	props: ['api'],
+
 	mounted () {
-		var t = this;
-
-		this.$nextTick(() => {
-			console.log('Login by token');
-
-			Api.loginByToken().then(() => {
-				console.log('Logged in');
-
-				t.$emit('loggedIn');
-			}).catch((e) => {
-				t.triedToken = true;
-			});
-		});
+		this.loginByToken();
 	},
 
 	methods: {
-		doLogin () {
-			var t = this;
+		async login () {
+			try {
+				let data = await this.api.login(this.username, this.password);
 
-			Api.login(this.username, this.password).then(() => {
-				t.$emit('loggedIn');
-			}).catch((e) => {
-				t.error = 'Erreur de connexion';
-			});
+				localStorage.setItem('loginToken', data.token.id);
+
+				this.$emit('loggedIn');
+			} catch {
+				this.error = 'Nom d\'utilisateur / mot de passe invalide';
+			}
+		},
+
+		async loginByToken () {
+			try {
+				var tokenId = localStorage.getItem('loginToken');
+
+				await this.api.loginByToken(tokenId);
+
+				this.$emit('loggedIn');
+			} catch {
+				this.triedToken = true;
+			}
 		}
 	},
 
@@ -68,7 +74,6 @@ export default {
 </script>
 
 <style>
-
 .login {
 	width: 30%;
 	padding-bottom: 30px;
@@ -82,8 +87,8 @@ export default {
 }
 
 .login .logo img {
-	width: 75%;
 	margin: 0 auto 0 auto;
+	padding-left: 20px;
 }
 
 .login h1 {
@@ -110,15 +115,14 @@ export default {
 	padding: 10px;
 	background-color: #fff;
 	color: #d66;
-	margin: 0 auto 30px auto;;
+	margin: 0 auto 30px auto;
 	width: 90%;
 	font-weight: bold;
 }
 
 @media only screen and (max-width: 600px) {
 	.login {
-		width: 90%;	
+		width: 90%;
 	}
 }
-
 </style>

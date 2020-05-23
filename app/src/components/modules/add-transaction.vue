@@ -38,7 +38,11 @@
 			>
 				<option value="_">> Catégorie</option>
 
-				<option v-for="category in objects.book.categories" :value="category.id">{{ category.name }}</option>
+				<option
+					v-for="category in objects.book.categories"
+					:value="category.id"
+					:key="category.id"
+				>{{ category.name }}</option>
 			</select>
 
 			<input
@@ -57,7 +61,6 @@
 </template>
 
 <script>
-import Api from 'api/api';
 import Formatting from 'util/formatting';
 import Dates from 'util/dates';
 
@@ -67,7 +70,7 @@ export default {
 	data () {
 		return {
 			form: {
-				date: '',
+				creationDate: '',
 				title: '',
 				categoryId: '_',
 				amount: '',
@@ -101,19 +104,13 @@ export default {
 		}
 	},
 
-	props: ['objects'],
-
-	mounted () {
-
-	},
+	props: ['api', 'objects'],
 
 	methods: {
 		validate () {
 			this.error = '';
 
-			try {
-				Dates.parse(this.form.date);
-			} catch (e) {
+			if (!Dates.isValid(this.form.creationDate)) {
 				this.error = 'Date invalide';
 			}
 
@@ -134,7 +131,7 @@ export default {
 			}
 		},
 
-		onAdd () {
+		async onAdd () {
 			this.validate();
 
 			if (this.error.length === 0) {
@@ -142,40 +139,27 @@ export default {
 					this.form.title,
 					this.form.categoryId,
 					this.form.amount,
-					Dates.parse(this.form.date),
+					this.form.creationDate,
 					this.form.direction
 				);
 
-				this.form = {
-					date: '',
-					title: '',
-					categoryId: '_',
-					amount: '',
-					direction: 'output'
-				};
+				transaction.id = (await this.api.saveTransaction(transaction)).id;
 
-				Api.saveTransaction(transaction, this.objects.book).then((data) => {
-					transaction.id = data.id;
-				});
+				this.clear();
+
+				this.message = 'Nouvelle transaction ' + transaction.id + ' ajoutée avec succès';
 			}
 		},
 
 		onDateFocus (e) {
-			var t = this;
+			if (this.form.creationDate.length === 0) {
+				let mostRecentTransaction = this.objects.book.report.mostRecentOutputTransaction;
 
-			var date = () => {
-				var transaction = t.objects.book.report.mostRecentTransaction;
+				let date = this.dateMode === 'today' || !mostRecentTransaction ? Dates.now() : mostRecentTransaction.creationDate;
 
-				if (t.dateMode === 'today' || transaction == null) {
-					return new Date().getTime();
-				} else {
-					return transaction.creationDate;
-				}
-			}
+				this.form.creationDate = date;
 
-			if (this.form.date.length === 0) {
-				this.form.date = Dates.format(date(), 'yyyy-MM-dd');
-				e.target.setSelectionRange(0, this.form.date.length);
+				e.target.setSelectionRange(0, this.form.creationDate.length);
 			}
 		},
 
@@ -184,6 +168,18 @@ export default {
 		},
 
 		onMessageClick () {
+			this.message = '';
+		},
+
+		clear () {
+			this.form = {
+				creationDate: '',
+				title: '',
+				categoryId: '_',
+				amount: '',
+				direction: 'output'
+			};
+
 			this.message = '';
 		}
 	},

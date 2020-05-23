@@ -1,43 +1,44 @@
 <template>
 	<div class="content">
-		<login v-if="!isLoggedIn" v-on:loggedIn="onLoggedIn"></login>
-		<panels v-if="ready" :objects="objects"></panels>
+		<login v-if="!isLoggedIn" @loggedIn="onLoggedIn" :api="api"></login>
+
+		<panels v-if="ready" :api="api" :objects="objects"></panels>
+
+		<div class="loading" v-if="isLoggedIn && !ready">{{ loadingInfo.message }}</div>
 	</div>
 </template>
 
 <script>
+import Api from 'api/api';
 import Objects from 'api/model/objects';
+import { Book } from 'api/model/book'
 
 import Login from 'components/login';
 import Panels from 'components/panels';
 
 export default {
 	data () {
-		var t = this;
-
 		return {
 			isLoggedIn: false,
 			ready: false,
 
-			objects: new Objects()
+			api: new Api(),
+
+			objects: new Objects(),
+
+			loadingInfo: {
+				message: ''
+			}
 		}
 	},
 
-	mounted () {
-
-	},
-
 	methods: {
-		onLoggedIn () {
-			var t = this;
-
+		async onLoggedIn () {
 			this.isLoggedIn = true;
 
-			this.objects.load().then(() => {
-				console.log('Application objects loaded');
+			await this.objects.load(this.api, this.loadingInfo);
 
-				t.ready = true;
-			});
+			this.ready = true;
 		}
 	},
 
@@ -49,28 +50,31 @@ export default {
 </script>
 
 <style>
-
 * {
 	margin: 0;
 	padding: 0;
 }
 
-html, body {
+html,
+body {
 	overflow-x: hidden;
 }
 
 body {
 	position: relative;
-	font-family: 'Roboto', sans-serif;
+	font-family: "Roboto", sans-serif;
 	font-size: 20px;
 	width: 100%;
 	min-height: 100vh;
 }
 
-input, button, textarea, select {
+input,
+button,
+textarea,
+select {
 	border: 0;
 	display: block;
-	font-family: 'Courier Prime', monospace;
+	font-family: "Courier Prime", monospace;
 	box-sizing: border-box;
 	font-size: 1em;
 	padding: 6px;
@@ -78,15 +82,17 @@ input, button, textarea, select {
 }
 
 button {
-	font-family: 'Roboto', sans-serif;
+	font-family: "Roboto", sans-serif;
 }
 
-input[type='color'] {
+input[type="color"] {
 	box-sizing: content-box;
 }
 
-input, textarea, select {
-	border-left: solid 8px #B9D4DB;
+input,
+textarea,
+select {
+	border-left: solid 8px #b9d4db;
 }
 
 button {
@@ -94,7 +100,10 @@ button {
 }
 
 @media only screen and (max-width: 600px) {
-	input, button, textarea, select {
+	input,
+	button,
+	textarea,
+	select {
 		font-size: 0.8em;
 	}
 }
@@ -109,17 +118,20 @@ table {
 }
 
 tbody {
-	display:block;
+	display: block;
 }
 
-thead, tbody tr {
-	display:table;
-	width:100%;
-	table-layout:fixed;
+thead,
+tbody tr {
+	display: table;
+	width: 100%;
+	table-layout: fixed;
 }
 
 thead {
-	width: calc( 100% - 1em )/* scrollbar is average 1em/16px width, remove it from thead width */
+	width: calc(
+		100% - 1em
+	); /* scrollbar is average 1em/16px width, remove it from thead width */
 }
 
 th {
@@ -128,7 +140,7 @@ th {
 }
 
 tbody {
-	font-family: 'Courier Prime', monospace;
+	font-family: "Courier Prime", monospace;
 }
 
 td {
@@ -141,7 +153,7 @@ td {
 	}
 
 	thead {
-	    width: 100% /* scrollbar is average 1em/16px width, remove it from thead width */
+		width: 100%; /* scrollbar is average 1em/16px width, remove it from thead width */
 	}
 
 	.color-square {
@@ -151,7 +163,7 @@ td {
 }
 
 .color-edit:after {
-	content: '';
+	content: "";
 	display: block;
 	clear: both;
 }
@@ -168,7 +180,7 @@ label {
 }
 
 input.color {
-	width: 200px!important;
+	width: 200px !important;
 }
 
 .form .info {
@@ -180,4 +192,10 @@ input.color {
 	font-weight: bold;
 }
 
+.loading {
+	width: 100%;
+	text-align: center;
+	font-size: 3em;
+	color: #fff;
+}
 </style>

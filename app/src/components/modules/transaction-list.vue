@@ -3,7 +3,7 @@
 		<h2>Transactions</h2>
 
 		<div class="options">
-			<div class="option">
+			<div class="option" v-if="month.length > 0">
 				<label>Mois</label>
 				<switcher :list="monthSwitcherList" v-model="month"></switcher>
 			</div>
@@ -21,6 +21,7 @@
 
 		<div class="transactions">
 			<data-table
+				v-if="month && transactionDirection"
 				ref="table"
 				:tableModel="table"
 				:tableData="objects.book.transactions"
@@ -32,26 +33,22 @@
 </template>
 
 <script>
-import Api from 'api/api';
 import Formatting from 'util/formatting';
 import Dates from 'util/dates';
-
 import Switcher from 'components/switcher';
 import DataTable from 'components/data-table';
 
 export default {
 	data () {
-		var t = this;
-
 		return {
 			table: {
 				sort: {
-					key: 'date',
+					key: 'creationDate',
 					direction: 'descending'
 				},
 
 				columns: {
-					'date': {
+					'creationDate': {
 						title: 'Date',
 						type: 'date',
 						width: '25%'
@@ -67,7 +64,7 @@ export default {
 						width: '30%',
 
 						getCategory: (id) => {
-							return t.objects.book.getCategory(id);
+							return this.objects.book.getCategory(id);
 						}
 					},
 					'amount': {
@@ -78,8 +75,10 @@ export default {
 				},
 
 				filter: (transaction) => {
-					return (transaction.direction === t.transactionDirection) &&
-						(Formatting.date(transaction.creationDate).indexOf(t.month) === 0);
+					let ret = (transaction.direction === this.transactionDirection) &&
+						(Dates.getYearAndMonth(transaction.creationDate) === this.month);
+
+					return ret;
 				}
 			},
 
@@ -111,7 +110,7 @@ export default {
 					}
 				},
 
-				_fdate: {
+				creationDate: {
 					label: 'Date',
 					type: 'date'
 				},
@@ -124,7 +123,7 @@ export default {
 				categoryId: {
 					label: 'Catégorie',
 					type: 'list',
-					getList: () => { return t.objects.book.categories; },
+					getList: () => { return this.objects.book.categories; },
 					render: (entry) => { return entry.name; }
 				},
 
@@ -136,23 +135,17 @@ export default {
 		}
 	},
 
-	props: ['objects'],
+	props: ['api', 'objects'],
 
 	mounted () {
-		var transaction = this.objects.book.report.mostRecentTransaction;
-
-		console.log(this.objects.book);
-
-		if (transaction) {
-			this.month = Dates.getMonth(transaction.creationDate);
+		if (this.objects.book.report.mostRecentTransaction) {
+			this.month = Dates.getYearAndMonth(this.objects.book.report.mostRecentTransaction.creationDate);
 		}
 	},
 
 	methods: {
 		updateTransaction (transaction) {
-			transaction.creationDate = Dates.parse(transaction._fdate);
-
-			Api.saveTransaction(transaction, this.objects.book);
+			this.api.saveTransaction(transaction);
 
 			this.objects.book.buildReport();
 		},
@@ -160,12 +153,10 @@ export default {
 		deleteTransaction (transaction) {
 			this.objects.book.removeTransaction(transaction);
 
-			Api.deleteTransaction(transaction);
+			this.api.deleteTransaction(transaction, this.objects.book);
 		},
 
 		createModalMission (transaction) {
-			transaction._fdate = Formatting.date(transaction.creationDate);
-
 			return {
 				title: 'Modifier une transaction',
 				model: this.dialogModel,
@@ -194,11 +185,12 @@ export default {
 	computed: {
 		monthSwitcherList () {
 			var months = this.objects.book.report.allMonths;
+
 			var ret = {};
 
 			months.forEach((month) => {
 				ret[month] = {
-					name: Dates.getMonthName(Dates.parse(month + '-01'))
+					name: Dates.getMonthName(month)
 				};
 			});
 
@@ -206,13 +198,9 @@ export default {
 		},
 
 		monthSavings () {
-			var e = this.objects.book.report.savingsForMonths[this.month];
+			var savings = this.objects.book.report.savingsForMonths[this.month];
 
-			if (e < 0) {
-				return 'En attente';
-			}
-
-			return Formatting.money(e);
+			return Formatting.money(savings);
 		}
 	},
 
@@ -229,6 +217,6 @@ export default {
 }
 
 .transaction-list .scroll {
-	max-height: 300px;
+	max-height: 600px;
 }
 </style>

@@ -1,20 +1,26 @@
 <template>
 	<div class="module category-editor">
 		<h2>Catégories</h2>
-		
+
 		<div class="actions">
-			<span class="add" @click="onAdd"><i class="fas fa-plus-square"></i></span>
+			<span class="add" @click="onAdd">
+				<i class="fas fa-plus-square"></i>
+			</span>
 		</div>
 
 		<div class="categories">
-			<data-table ref="table" :tableModel="table" :tableData="objects.book.categories" :selectable="true" @selected="onSelect"></data-table>
+			<data-table
+				ref="table"
+				:tableModel="table"
+				:tableData="objects.book.categories"
+				:selectable="true"
+				@selected="onSelect"
+			></data-table>
 		</div>
 	</div>
 </template>
 
 <script>
-import Api from 'api/api';
-
 import DataTable from 'components/data-table';
 import ColorSquare from 'components/color-square';
 
@@ -54,30 +60,26 @@ export default {
 				color: {
 					label: 'Couleur',
 					type: 'color'
-				}				
+				}
 			}
 		}
 	},
 
-	props: ['objects'],
-
-	mounted () {
-
-	},
+	props: ['api', 'objects'],
 
 	methods: {
 		updateCategory (category) {
-			Api.saveCategory(category);
+			this.api.saveCategory(category);
 		},
 
-		addCategory (category) {
-			Api.saveCategory(category, this.objects.book).then((data) => {
-				category.id = data.id;
-			});
+		async addCategory (category) {
+			category.bookId = this.objects.book.id;
+
+			category.id = (await this.api.saveCategory(category)).id;
 		},
 
 		deleteCategory (category) {
-			Api.deleteCategory(category);
+			this.api.deleteCategory(category);
 		},
 
 		createModalMission (row) {
@@ -99,7 +101,7 @@ export default {
 							this.addCategory(row);
 						} else {
 							this.updateCategory(row);
-						}						
+						}
 					} else if (action === 'close') {
 						if (mode === 'add') {
 							this.objects.book.categories.splice(this.objects.book.categories.length - 1, 1);
@@ -132,31 +134,31 @@ export default {
 </script>
 
 <style>
+.category-editor .form {
+	margin-top: 10px;
+	width: 100%;
+}
+
+.category-editor .form input {
+	width: 100%;
+}
+
+.category-editor .form button {
+	width: 100%;
+}
+
+.category-editor .add {
+	font-size: 1.5em;
+	cursor: pointer;
+}
+
+.category-editor .scroll {
+	max-height: 300px;
+}
+
+@media only screen and (max-width: 600px) {
 	.category-editor .form {
-		margin-top: 10px;
 		width: 100%;
 	}
-
-	.category-editor .form input {
-		width: 100%;
-	}
-
-	.category-editor .form button {
-		width: 100%;
-	}
-
-	.category-editor .add {
-		font-size: 1.5em;
-		cursor: pointer;
-	}
-
-	.category-editor .scroll {
-		max-height: 300px;
-	}
-
-	@media only screen and (max-width: 600px) {
-		.category-editor .form {
-			width: 100%;
-		}
-	}	
+}
 </style>

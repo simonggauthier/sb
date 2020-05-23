@@ -19,10 +19,16 @@
 
             <form method="<?php echo $route->method ?>" action="/sbapi<?php echo $route->action ?>">
                 <?php $route->parameters->forEach(function ($key, $param) {
-                    $type = $param->hint === null ? 'text' : 'textarea';
+                    if ($param->hint === 'json') {
                 ?>
-                    <input type="<?php echo $type ?>" name="<?php echo $param->name ?>" placeholder="<?php echo $param->name ?>" value="<?php echo $param->name === 'delete' ? 'delete' : '' ?>" />
-
+                        <textarea name="<?php echo $param->name ?>" placeholder="<?php echo $param->name ?>"></textarea>
+                    <?php
+                    } else {
+                    ?>
+                        <input type="text" name="<?php echo $param->name ?>" placeholder="<?php echo $param->name ?>" value="<?php echo $param->name === 'delete' ? 'delete' : '' ?>" />
+                    <?php
+                    }
+                    ?>
                 <?php }); ?>
 
                 <button type="submit">Submit</button>

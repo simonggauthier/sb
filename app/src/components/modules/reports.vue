@@ -8,8 +8,13 @@
 				<switcher :list="reports" v-model="reportType"></switcher>
 			</div>
 
-			<div class="report" v-if="reportType === key" :class="key" v-for="(report, key) in reports">
-				<data-table v-if="report.buildTableModel" :tableModel="report.buildTableModel()" :tableData="report.buildTableData()" :selectable="false"></data-table>
+			<div class="report" :class="key" v-for="(report, key) in reports" :key="key">
+				<data-table
+					v-if="report && reportType === key && report.buildTableModel"
+					:tableModel="report.buildTableModel()"
+					:tableData="report.buildTableData()"
+					:selectable="false"
+				></data-table>
 			</div>
 		</div>
 	</div>
@@ -23,8 +28,6 @@ import Switcher from 'components/switcher';
 
 export default {
 	data () {
-		var t = this;
-
 		return {
 			reportType: 'savings-total',
 
@@ -32,9 +35,9 @@ export default {
 				'savings-total': {
 					name: 'Économies totales',
 
-					buildTableModel () {
+					buildTableModel: () => {
 						return {
-							sort: { 
+							sort: {
 								key: 'key',
 								direction: 'ascending'
 							},
@@ -54,13 +57,13 @@ export default {
 						};
 					},
 
-					buildTableData () {
+					buildTableData: () => {
 						return [{
 							key: 'Moyenne d\'économies par mois',
-							amount: t.objects.book.report.averageSavingsPerMonth
+							amount: this.objects.book.report.averageSavingsPerMonth
 						}, {
 							key: 'Économies totales',
-							amount: t.objects.book.report.totalSavings
+							amount: this.objects.book.report.totalSavings
 						}]
 					}
 				},
@@ -68,9 +71,9 @@ export default {
 				'category-average-month': {
 					name: 'Moyenne mensuelle par catégorie',
 
-					buildTableModel () {
+					buildTableModel: () => {
 						return {
-							sort: { 
+							sort: {
 								key: 'categoryId',
 								direction: 'ascending'
 							},
@@ -80,9 +83,9 @@ export default {
 									title: 'Catégorie',
 									type: 'category',
 									width: '30%',
-									
+
 									getCategory: (id) => {
-										return t.objects.book.getCategory(id);
+										return this.objects.book.getCategory(id);
 									}
 								},
 								'amount': {
@@ -94,13 +97,13 @@ export default {
 						};
 					},
 
-					buildTableData () {
+					buildTableData: () => {
 						var ret = [];
 
-						t.objects.book.categories.forEach((category) => {
+						this.objects.book.categories.forEach((category) => {
 							ret.push({
 								categoryId: category.id,
-								amount: t.calculateTotalCategoryAverage(category.id)
+								amount: this.calculateTotalCategoryAverage(category.id)
 							});
 						});
 
@@ -113,26 +116,18 @@ export default {
 
 	props: ['objects'],
 
-	mounted () {
-
-	},
-
 	methods: {
 		calculateTotalCategoryAverage (categoryId) {
 			var a = Object.keys(this.objects.book.report.monthlyTotalPerCategory)
-					.filter((month, i, a) => i < a.length - 1)
-					.map((month) => this.objects.book.report.monthlyTotalPerCategory[month][categoryId]);
+				.filter((month, i, a) => i < a.length - 1)
+				.map((month) => this.objects.book.report.monthlyTotalPerCategory[month][categoryId]);
 
 			if (a.length === 0) {
 				return 0;
 			}
 
 			return a.reduce((a, b) => a + b) / a.length;
-		}	
-	},
-
-	computed: {
-		
+		}
 	},
 
 	components: {
@@ -143,7 +138,6 @@ export default {
 </script>
 
 <style>
-
 .reports .options {
 	margin-top: 20px;
 }
@@ -151,5 +145,4 @@ export default {
 .reports .scroll {
 	max-height: 300px;
 }
-
 </style>

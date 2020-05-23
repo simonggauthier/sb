@@ -3,7 +3,7 @@
 	"name": "Simon's budget",
 	"icons": [
 		{
-			"src": "img/leaf180.png",
+			"src": "img/icon.png",
 			"type": "image/png",
 			"sizes": "180x180"
 		}

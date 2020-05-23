@@ -16,9 +16,49 @@ class Implementation extends Api
 		$this->route();
 	}
 
-	public function execute($bookJson)
+	public function importBook($bookJson)
 	{
-		$this->ok(['msg' => $bookJson]);
+		$this->checkLogin();
+
+		$log = new Collection();
+
+		$book = new Collection(json_decode($bookJson, true));
+		$target = $this->getBookByName('budget');
+
+		// Create collections if empty
+		if ($this->database->getEntities('category', new Collection())->size() === 0) {
+			(new Collection($book->get('categories')))->forEach(function ($key, $category) use (&$log, $target) {
+				$new = new Collection([
+					'bookId' => $target->get('id'),
+					'name' => $category['name'],
+					'color' => $category['color']
+				]);
+
+				$this->database->createEntity('category', $new);
+
+				$log->push('Created category ' . $new->get('name') . ' with id ' . $new->get('id'));
+			});
+		}
+
+		// Create transactions if empty
+		if ($this->database->getEntities('transaction', new Collection())->size() === 0) {
+			(new Collection($book->get('transactions')))->forEach(function ($key, $transaction) use (&$log, $target) {
+				$new = new Collection([
+					'bookId' => $target->get('id'),
+					'direction' => $transaction['direction'],
+					'title' => $transaction['title'],
+					'categoryId' => $transaction['categoryId'],
+					'amount' => $transaction['amount'],
+					'creationDate' => date("Y-m-d", substr($transaction['date'], 0, 10))
+				]);
+
+				$this->database->createEntity('transaction', $new);
+
+				$log->push('Created transaction ' . $new->get('title') . ' with id ' . $new->get('id'));
+			});
+		}
+
+		$this->ok(['log' => $log]);
 	}
 
 	public function login($username, $password, $device)
@@ -132,7 +172,7 @@ class Implementation extends Api
 		$this->ok(['action' => 'deleted']);
 	}
 
-	public function createTransaction($bookId, $direction, $title, $categoryId, $amount, $date)
+	public function createTransaction($bookId, $direction, $title, $categoryId, $amount, $creationDate)
 	{
 		$this->checkLogin();
 
@@ -144,7 +184,7 @@ class Implementation extends Api
 			'title' => $title,
 			'categoryId' => $categoryId,
 			'amount' => $amount,
-			'creationDate' => $date
+			'creationDate' => $creationDate
 		]);
 
 		$this->database->createEntity('transaction', $transaction);

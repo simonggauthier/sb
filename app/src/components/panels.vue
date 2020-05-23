@@ -4,12 +4,12 @@
 
 		<div class="title">
 			<h1>SB</h1>
-			<img src="img/logo_transparent.png" alt />
+			<img src="img/logo.png" alt />
 		</div>
 
 		<div class="modules">
 			<div class="module">
-				<add-transaction :objects="objects"></add-transaction>
+				<add-transaction :api="api" :objects="objects"></add-transaction>
 			</div>
 
 			<div class="module">
@@ -17,11 +17,11 @@
 			</div>
 
 			<div class="module">
-				<transaction-list :objects="objects" @requestModal="onRequestModal"></transaction-list>
+				<transaction-list :api="api" :objects="objects" @requestModal="onRequestModal"></transaction-list>
 			</div>
 
 			<div class="module">
-				<category-editor :objects="objects" @requestModal="onRequestModal"></category-editor>
+				<category-editor :api="api" :objects="objects" @requestModal="onRequestModal"></category-editor>
 			</div>
 		</div>
 	</div>
@@ -43,11 +43,7 @@ export default {
 		}
 	},
 
-	props: ['objects'],
-
-	mounted () {
-
-	},
+	props: ['api', 'objects'],
 
 	methods: {
 		onModalClose () {
@@ -77,8 +73,8 @@ export default {
 }
 
 .panels > .title img {
-	width: 20%;
 	margin: 0 auto 0 auto;
+	padding-left: 20px;
 }
 
 .panels .modules {

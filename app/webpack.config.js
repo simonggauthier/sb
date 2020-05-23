@@ -1,6 +1,6 @@
 'use strict';
 
-const path = require( 'path' );
+const path = require('path');
 
 const { VueLoaderPlugin } = require('vue-loader')
 
@@ -12,25 +12,25 @@ module.exports = {
 		filename: 'bundle.js'
 	},
 	resolve: {
-	    alias: {
-	      'Vue': 'vue/dist/vue.esm.js',
-	      'components': path.resolve(__dirname, 'src', 'components'),
-	      'api': path.resolve(__dirname, 'src', 'api'),
-	      'util': path.resolve(__dirname, 'src', 'util')
-	    },
+		alias: {
+			'Vue': 'vue/dist/vue.esm.js',
+			'components': path.resolve(__dirname, 'src', 'components'),
+			'api': path.resolve(__dirname, 'src', 'api'),
+			'util': path.resolve(__dirname, 'src', 'util')
+		},
 
-	    extensions: ['.vue', '.js']
-  	},
-  	module: {
-  		rules: [
-	  		{
-	  			test: /\.vue$/,
-	  			loader: 'vue-loader'
-	  		},
-     		{
+		extensions: ['.vue', '.js']
+	},
+	module: {
+		rules: [
+			{
+				test: /\.vue$/,
+				loader: 'vue-loader'
+			},
+			{
 				test: /\.js$/,
 				loader: 'babel-loader'
-		    },
+			},
 			{
 				test: /\.css$/,
 				use: [
@@ -38,9 +38,9 @@ module.exports = {
 					'css-loader'
 				]
 			}
-  		]
-  	},
-  	plugins: [
-  		new VueLoaderPlugin()
-  	]
+		]
+	},
+	plugins: [
+		new VueLoaderPlugin()
+	]
 };

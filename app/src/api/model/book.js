@@ -1,21 +1,9 @@
-import uuid from 'uuid/v4';
 import Dates from 'util/dates';
-
-var idc = (a, b) => {
-	if (typeof a === 'string') {
-		a = parseInt(a, 10);
-	}
-
-	if (typeof b === 'string') {
-		b = parseInt(b, 10);
-	}
-
-	return a === b;
-};
 
 class BookReport {
 	constructor() {
 		this.mostRecentTransaction = null;
+		this.mostRecentOutputTransaction = null;
 		this.allMonths = null;
 		this.transactionsForMonths = {};
 		this.savingsForMonths = {};
@@ -38,7 +26,7 @@ class Book {
 					var x = direction === 'ascending' ? a : b;
 					var y = direction === 'ascending' ? b : a;
 
-					return x.creationDate - y.creationDate;
+					return Dates.compare(x.creationDate, y.creationDate);
 				};
 			}
 		};
@@ -54,9 +42,18 @@ class Book {
 			report.mostRecentTransaction = this.transactions.sort(this.sorters.transactionDate('descending'))[0];
 		}
 
+		// mostRecentOutputTransaction
+		if (this.transactions.length === 0) {
+			report.mostRecentOutputTransaction = null;
+		} else {
+			report.mostRecentOutputTransaction = this.transactions.filter((transaction) => {
+				return transaction.direction === 'output';
+			}).sort(this.sorters.transactionDate('descending'))[0];
+		}
+
 		// allMonths
 		report.allMonths = this.transactions.sort(this.sorters.transactionDate('ascending')).map((transaction) => {
-			return Dates.getMonth(transaction.creationDate);
+			return Dates.getYearAndMonth(transaction.creationDate);
 		}).filter((monthName, i, self) => {
 			return self.indexOf(monthName) === i;
 		});
@@ -68,7 +65,7 @@ class Book {
 		report.allMonths.forEach((month) => {
 			// transactionsForMonths
 			report.transactionsForMonths[month] = this.transactions.filter((transaction) => {
-				return Dates.getMonth(transaction.creationDate) === month;
+				return Dates.getYearAndMonth(transaction.creationDate) === month;
 			});
 
 			// savingsForMonths
@@ -93,7 +90,7 @@ class Book {
 
 			this.categories.forEach((category) => {
 				var t = report.transactionsForMonths[month]
-					.filter((transaction) => idc(transaction.categoryId, category.id))
+					.filter((transaction) => transaction.categoryId === category.id)
 					.map((transaction) => parseFloat(transaction.amount));
 
 				if (t.length > 0) {
@@ -114,8 +111,6 @@ class Book {
 
 		report.averageSavingsPerMonth = report.totalSavings / Object.keys(report.savingsForMonths).length;
 
-		console.log(report);
-
 		this.report = report;
 	}
 
@@ -125,7 +120,8 @@ class Book {
 			categoryId,
 			amount,
 			date,
-			direction
+			direction,
+			bookId: this.id
 		};
 
 		this.transactions.push(transaction);
@@ -159,17 +155,13 @@ class Book {
 	}
 
 	getCategory (id) {
-		for (var i = 0; i < this.categories.length; i++) {
-			if (idc(this.categories[i].id, id)) {
-				return this.categories[i];
-			}
-		}
-
-		return null;
+		return this.categories.find((c) => {
+			return c.id === id;
+		});
 	}
 
-	static fromJson (json) {
-		var ret = Object.assign(new Book, json);
+	static fromData (data) {
+		var ret = Object.assign(new Book, data);
 
 		ret.buildReport();
 

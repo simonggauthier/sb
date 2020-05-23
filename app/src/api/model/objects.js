@@ -3,26 +3,18 @@ import Api from 'api/api';
 import { Book } from 'api/model/book'
 
 class Objects {
-	constructor () {
+	constructor() {
 		this.book = null;
 	}
 
-	load () {
-		var t = this;
+	async load (api, loadingInfo) {
+		loadingInfo.message = 'Chargement du budget';
 
-		return new Promise((resolve, reject) => {
-			Api.getBook('Budget').then((data) => {
-				t.book = Book.fromJson(data);
+		let data = await api.getBook('budget');
 
-				resolve();
-			}).catch((e) => {
-				reject(e);
-			});
-		});
-	}
+		loadingInfo.message = 'Construction du budget';
 
-	saveCategory (category) {
-
+		this.book = Book.fromData(data);
 	}
 }
 

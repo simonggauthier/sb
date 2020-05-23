@@ -79,9 +79,15 @@ class Api
 
 	protected function error($e)
 	{
-		http_response_code($e->httpCode);
+		if ($e instanceof ApiException) {
+			http_response_code($e->httpCode);
 
-		echo json_encode($e);
+			echo json_encode($e);
+		} else {
+			http_response_code(500);
+
+			echo json_encode(['error' => 'Unknown api error']);
+		}
 	}
 
 	protected function ok($payload = null)
@@ -99,33 +105,37 @@ class Api
 
 	protected function route()
 	{
-		$server = new Collection($_SERVER);
-		$request = new Collection($_REQUEST);
+		try {
+			$server = new Collection($_SERVER);
+			$request = new Collection($_REQUEST);
 
-		header('Content-Type: application/json; charset=utf-8');
+			header('Content-Type: application/json; charset=utf-8');
 
-		$method = strtolower($server->get('REQUEST_METHOD'));
+			$method = strtolower($server->get('REQUEST_METHOD'));
 
-		if (!$request->hasKey('action')) {
-			throw new ApiException('No action parameter', 400);
-		}
-
-		$action = $request->get('action');
-
-		$route = $this->definition->findRoute($method,  '/' . $action);
-
-		if (!$route) {
-			throw new ApiException('Invalid action', 400);
-		}
-
-		$params = $route->extractParams();
-
-		$route->parameters->forEach(function ($key, $param, $i) use ($params) {
-			if (!$params->hasKey($i)) {
-				throw new ApiException('Invalid parameter: ' . $param->name, 400);
+			if (!$request->hasKey('action')) {
+				throw new ApiException('No action parameter', 400);
 			}
-		});
 
-		call_user_func_array(array($this, $route->controllerName), $params->toArray());
+			$action = $request->get('action');
+
+			$route = $this->definition->findRoute($method,  '/' . $action);
+
+			if (!$route) {
+				throw new ApiException('Invalid action', 400);
+			}
+
+			$params = $route->extractParams();
+
+			$route->parameters->forEach(function ($key, $param, $i) use ($params) {
+				if (!$params->hasKey($i)) {
+					throw new ApiException('Invalid parameter: ' . $param->name, 400);
+				}
+			});
+
+			call_user_func_array(array($this, $route->controllerName), $params->toArray());
+		} catch (Exception $e) {
+			$this->error($e);
+		}
 	}
 }

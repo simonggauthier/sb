@@ -32,7 +32,7 @@
         ]
     },
     "routes": {
-        "post:/execute": [
+        "post:/import-book": [
             "book:json"
         ],
         "post:/login": [
@@ -58,7 +58,7 @@
             "title",
             "categoryId",
             "amount",
-            "date"
+            "creationDate"
         ]
     }
 }
