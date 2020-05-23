@@ -32,7 +32,7 @@
 		<app></app>
 	</div>
 
-	<script src="bundle.js?version=11"></script>
+	<script src="bundle.js?version=12"></script>
 </body>
 
 </html>

@@ -9,19 +9,19 @@
 
 		<div class="modules">
 			<div class="module">
-				<add-transaction :api="api" :objects="objects"></add-transaction>
-			</div>
-
-			<div class="module">
 				<add-transaction-batch :api="api" :objects="objects"></add-transaction-batch>
 			</div>
 
 			<div class="module">
-				<reports :objects="objects"></reports>
+				<transaction-list :api="api" :objects="objects" @requestModal="onRequestModal"></transaction-list>
 			</div>
 
 			<div class="module">
-				<transaction-list :api="api" :objects="objects" @requestModal="onRequestModal"></transaction-list>
+				<add-transaction :api="api" :objects="objects"></add-transaction>
+			</div>
+
+			<div class="module">
+				<reports :objects="objects"></reports>
 			</div>
 
 			<div class="module">

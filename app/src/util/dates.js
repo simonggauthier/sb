@@ -36,6 +36,40 @@ class Dates {
 		return this.inst(d).isValid();
 	}
 
+	static isValidBank (d) {
+		let comps = d.split('-');
+
+		if (comps.length < 3) {
+			return false;
+		}
+
+		let month = Dates.MONTHS_BANK.indexOf(comps[1]);
+
+		return month >= 0 && Number.isInteger(parseInt(comps[0], 10), parseInt(comps[2], 10));
+	}
+
+	static parseBank (d) {
+		let comps = d.split('-');
+
+		if (comps.length < 3) {
+			return null;
+		}
+
+		let month = (Dates.MONTHS_BANK.indexOf(comps[1]) + 1);
+
+		if (month === 0) {
+			throw 'Invalid bank date';
+		}
+
+		month = '' + month;
+
+		if (month.length === 1) {
+			month = '0' + month;
+		}
+
+		return comps[2] + '-' + month + '-' + comps[0];
+	}
+
 	static now () {
 		return moment().format(Dates.FORMAT);
 	}
@@ -49,13 +83,14 @@ class Dates {
 			monthC = month.substring(5);
 		}
 
-		let months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 		let index = parseInt(monthC, 10) - 1;
 
-		return months[index] + (yearC.length > 0 ? ' ' : '') + yearC;
+		return Dates.MONTHS[index] + (yearC.length > 0 ? ' ' : '') + yearC;
 	}
 };
 
 Dates.FORMAT = 'YYYY-MM-DD';
+Dates.MONTHS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+Dates.MONTHS_BANK = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
 
 export default Dates;
