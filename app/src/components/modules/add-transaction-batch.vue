@@ -47,7 +47,7 @@ class Tokenizer {
 
 				// Special case: CC
 				if (this.nextEntry.isCc) {
-					this.nextEntry.context = line[2].trim();
+					this.nextEntry.context = line[2].trim().toLowerCase();
 				}
 			} else if (this.isAmountLine(line)) {
 				// Amount & direction

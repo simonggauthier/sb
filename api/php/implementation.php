@@ -224,6 +224,26 @@ class Implementation extends Api
 		$this->ok(['action' => 'deleted']);
 	}
 
+	public function setContextCategory($context, $categoryId)
+	{
+		$this->checkLogin();
+
+		$category = exists($this->getCategoryById($categoryId));
+
+		exists($this->getBookById($category->get('bookId')));
+
+		$contextCategory = new Collection(['context' => $context, 'categoryId' => $categoryId]);
+
+		if ($this->database->getEntities('contextCategory', ['context' => $context])->size() > 0) {
+			$this->database->updateEntity('contextCategory', $contextCategory, 'context');
+		} else {
+			$this->database->createEntity('contextCategory', $contextCategory);
+		}
+
+
+		$this->ok(['action' => 'context category set']);
+	}
+
 	// Helpers
 	private function getLoginTokenById($id)
 	{

@@ -3,3 +3,4 @@ create table login_tokens (id TEXT PRIMARY KEY, owner_id TEXT, device TEXT, last
 create table books (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, owner_id TEXT);
 create table categories (id INTEGER PRIMARY KEY AUTOINCREMENT, book_id INTEGER, name TEXT, color TEXT);
 create table transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, book_id INTEGER, direction TEXT, title TEXT, category_id INTEGER, amount INTEGER, creation_date INTEGER);
+create table context_categories (context text, category_id INTEGER, PRIMARY KEY (context, category_id));
