@@ -18,6 +18,7 @@ class Book {
 		this.id = null;
 		this.categories = [];
 		this.transactions = [];
+		this.contextCategories = [];
 		this.report = null;
 
 		this.sorters = {

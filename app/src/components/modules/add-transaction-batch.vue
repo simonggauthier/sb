@@ -105,11 +105,17 @@ class Tokenizer {
 	}
 
 	isAmount (str) {
-		return Number.isFinite(this.toAmount(str));
+		return Number.isFinite(parseFloat(this.toAmount(str)));
 	}
 
 	toAmount (str) {
-		return parseFloat(str.replace(/\(/g, '').replace(/\)/g, '').replace(/\$/g, '').replace(/,/g, '.').replace(/ /g, ''));
+		let ret = str.replace(/\(/g, '').replace(/\)/g, '').replace(/\$/g, '').replace(/,/g, '.').replace(/ /g, '');
+
+		if (ret.length < 4) {
+			return ret + '0';
+		}
+
+		return ret;
 	}
 }
 
@@ -129,7 +135,41 @@ export default {
 				'output': {
 					name: 'Sortie'
 				}
-			}
+			},
+
+			dialogModel: {
+				context: {
+					label: 'Contexte',
+					type: 'string'
+				},
+
+				categoryId: {
+					label: 'Catégorie',
+					type: 'list',
+					getList: () => { return this.objects.book.categories; },
+					render: (entry) => { return entry.name; }
+				},
+
+				title: {
+					label: 'Titre',
+					type: 'string'
+				},
+
+				creationDate: {
+					label: 'Date',
+					type: 'date'
+				},
+
+				amount: {
+					label: 'Montant',
+					type: 'money'
+				}
+			},
+
+			entries: [],
+			index: 0,
+
+			messageLog: []
 		}
 	},
 
@@ -140,8 +180,105 @@ export default {
 			let transactions = [];
 			let tokenizer = new Tokenizer(this.form.raw);
 
-			console.log(tokenizer.entries);
-		}
+			this.entries = tokenizer.entries;
+			this.index = 0;
+
+			if (this.entries.length > 0) {
+				this.$emit('requestModal', this.createModalMission(this.getNextEntry()));
+			}
+		},
+
+		async addTransaction (entry) {
+			await this.api.setContextCategory({
+				context: entry.context,
+				categoryId: entry.categoryId,
+				title: entry.title
+			});
+
+			var transaction = this.objects.book.addTransaction(
+				entry.title,
+				entry.categoryId,
+				entry.amount,
+				entry.creationDate,
+				entry.direction
+			);
+
+			transaction.id = (await this.api.saveTransaction(transaction)).id;
+		},
+
+		getNextEntry () {
+			if (this.entries.length <= this.index) {
+				return null;
+			}
+
+			let ret = this.entries[this.index];
+
+			this.index++;
+
+			let context = this.objects.book.contextCategories.find((c) => ret.context.indexOf(c.context) === 0);
+
+			if (context) {
+				ret.categoryId = context.categoryId;
+				ret.title = context.title;
+			}
+
+			return ret;
+		},
+
+		createModalMission (entry) {
+			let doNext = () => {
+				let next = this.getNextEntry();
+
+				if (next) {
+					this.$emit('requestModal', this.createModalMission(next));
+				}
+			};
+
+			return {
+				title: 'Ajouter une transaction',
+				model: this.dialogModel,
+				target: entry,
+
+				buttons: [{
+					action: 'add',
+					label: 'Ajouter',
+					close: true,
+
+					click: () => {
+						this.addTransaction(entry);
+
+						doNext();
+					},
+
+					validate: () => {
+						if (!entry.categoryId) {
+							throw 'Catégorie invalide';
+						}
+
+						if (!entry.title) {
+							throw 'Titre invalide';
+						}
+					}
+				}, {
+					action: 'ignore',
+					label: 'Ignorer',
+					close: true,
+
+					click: () => {
+						doNext();
+					}
+				}, {
+					action: 'cancel',
+					label: 'Annuler',
+					close: true,
+
+					click: () => {
+						this.entries = [];
+						this.index = 0;
+					}
+				}]
+			}
+		},
 	},
 
 	components: {

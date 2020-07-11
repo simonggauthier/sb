@@ -32,7 +32,8 @@
         ],
         "contextCategory": [
             "context",
-            "categoryId:number"
+            "categoryId:number",
+            "title"
         ]
     },
     "routes": {
@@ -66,7 +67,8 @@
         ],
         "post:/set-context-category": [
             "context",
-            "categoryId"
+            "categoryId",
+            "title"
         ]
     }
 }

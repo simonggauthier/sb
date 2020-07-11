@@ -9,7 +9,7 @@
 
 		<div class="modules">
 			<div class="module">
-				<add-transaction-batch :api="api" :objects="objects"></add-transaction-batch>
+				<add-transaction-batch :api="api" :objects="objects" @requestModal="onRequestModal"></add-transaction-batch>
 			</div>
 
 			<div class="module">

@@ -5,6 +5,10 @@
 		<div class="dialog">
 			<div class="title">{{ mission.title }}</div>
 
+			<div class="message error" v-if="error.length > 0">{{ error }}</div>
+
+			<div class="message info" v-if="info.length > 0">{{ info }}</div>
+
 			<div class="body">
 				<div class="field" v-for="(field, key) in mission.model" :key="key">
 					<div class="input-string" v-if="field.type === 'string'">
@@ -73,9 +77,15 @@
 			</div>
 
 			<div class="controls">
-				<button @click="onClose('ok')">{{ mission.okLabel }}</button>
+				<button v-if="!mission.buttons" @click="onClose('ok')">{{ mission.okLabel }}</button>
 				<button v-if="mission.canDelete" @click="onClose('delete')">Supprimer</button>
 				<button v-if="mission.canClose" @click="onClose('close')">Fermer</button>
+
+				<button
+					v-for="button in mission.buttons"
+					@click="onButton(button)"
+					:key="button.action"
+				>{{ button.label }}</button>
 			</div>
 		</div>
 	</div>
@@ -89,7 +99,8 @@ import Switcher from 'components/switcher';
 export default {
 	data () {
 		return {
-
+			error: '',
+			info: ''
 		};
 	},
 
@@ -106,6 +117,26 @@ export default {
 			if (this.mission.onClose) {
 				this.mission.onClose(action);
 			}
+		},
+
+		onButton (button) {
+			this.error = '';
+
+			if (button.validate) {
+				try {
+					button.validate();
+				} catch (e) {
+					this.error = e;
+
+					return;
+				}
+			}
+
+			if (button.close) {
+				this.onClose('button');
+			}
+
+			button.click();
 		},
 
 		onMoneyChange (field, key) {
@@ -157,5 +188,24 @@ export default {
 	font-size: 0.7em;
 	float: right;
 	margin-left: 10px;
+}
+
+.message {
+	margin-bottom: 10px;
+	padding: 5px 0;
+}
+
+.error {
+	color: #f00;
+	background-color: #fdd;
+	border-top: 2px solid #f00;
+	border-bottom: 2px solid #f00;
+}
+
+.info {
+	color: #040;
+	background-color: #dfd;
+	border-top: 2px solid #040;
+	border-bottom: 2px solid #040;
 }
 </style>

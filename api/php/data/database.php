@@ -185,7 +185,7 @@ class Database
         }
     }
 
-    public function updateEntity($type, $attributes, $idName = 'id')
+    public function updateEntity($type, $attributes)
     {
         $entity = $this->definition->getEntity($type);
 
@@ -210,10 +210,10 @@ class Database
             }
         });
 
-        $id = $entity->findAttribute($idName);
-        $values->push($id->makeInsertValue($attributes->get($idName)));
+        $id = $entity->findAttribute('id');
+        $values->push($id->makeInsertValue($attributes->get('id')));
 
-        $query .= ' where ' . $idName . ' ' . $id->equality() . ' ?';
+        $query .= ' where id ' . $id->equality() . ' ?';
 
         $this->executeQuery($query, $values);
     }

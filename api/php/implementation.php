@@ -105,6 +105,7 @@ class Implementation extends Api
 		$ret = new Collection();
 		$ret->set('categories', new Collection());
 		$ret->set('transactions', new Collection());
+		$ret->set('contextCategories', new Collection());
 
 		$categories = $this->database->getEntities('category', ['bookId' => $book->get('id')]);
 
@@ -117,6 +118,12 @@ class Implementation extends Api
 		$transactions->forEach(function ($key, $transaction) use (&$ret) {
 			$ret->get('transactions')->push($transaction);
 		});
+
+		$contextCategories = $this->database->getEntities('contextCategory', []);
+
+		$contextCategories->forEach((function ($key, $contextCategory) use (&$ret) {
+			$ret->get('contextCategories')->push($contextCategory);
+		}));
 
 		$ret->set('id', $book->get('id'));
 
@@ -224,7 +231,7 @@ class Implementation extends Api
 		$this->ok(['action' => 'deleted']);
 	}
 
-	public function setContextCategory($context, $categoryId)
+	public function setContextCategory($context, $categoryId, $title)
 	{
 		$this->checkLogin();
 
@@ -232,7 +239,7 @@ class Implementation extends Api
 
 		exists($this->getBookById($category->get('bookId')));
 
-		$contextCategory = new Collection(['context' => $context, 'categoryId' => $categoryId]);
+		$contextCategory = new Collection(['context' => $context, 'categoryId' => $categoryId, 'title' => $title]);
 
 		if ($this->database->getEntities('contextCategory', ['context' => $context])->size() > 0) {
 			$this->database->updateEntity('contextCategory', $contextCategory, 'context');
